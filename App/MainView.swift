@@ -41,6 +41,9 @@ struct MainView: View {
                     }
                 }
             }
+            Button(action: gemocardKit.action) {
+                Text("lolkek")
+            }
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

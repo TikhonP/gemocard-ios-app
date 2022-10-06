@@ -30,14 +30,11 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         static let characteristic = CBUUID.init(string: "ffe1")
     }
     
-    /// Status update callback with ``CompletionCodes`` status
-    private let completion: (CompletionCodes) -> Void
+    private let completion: GemocardStatusUpdateCallback
     
-    /// Callback for discovered devices after call ``discover()``
-    private let onDiscoverCallback: (_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ RSSI: NSNumber) -> Void
+    private let onDiscoverCallback: OnDiscoverCallback
     
-    /// from 0.0 to 1.0
-    private let onProgressUpdate: (_ progress: Float) -> Void
+    private let onProgressUpdate: OnProgressUpdate
     
     private var centralManager: CBCentralManager?
     private var isCentralManagerReady: Bool = false
@@ -47,15 +44,17 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     
     private var characteristic: CBCharacteristic?
     
+    private var gemocardDeviceController: GemocardDeviceController?
+    
     /// Initialization of ``GemocardSDK`` class
     /// - Parameters:
     ///   - completion: update status callback for differrent events
     ///   - onDiscoverCallback: on device discover push to display it in view list
     ///   - onProgressUpdate: update progress number
     init (
-        completion: @escaping (CompletionCodes) -> Void,
-        onDiscoverCallback: @escaping (CBPeripheral, [String : Any], NSNumber) -> Void,
-        onProgressUpdate: @escaping (Float) -> Void
+        completion: @escaping GemocardStatusUpdateCallback,
+        onDiscoverCallback: @escaping OnDiscoverCallback,
+        onProgressUpdate: @escaping OnProgressUpdate
     ) {
         self.completion = completion
         self.onDiscoverCallback = onDiscoverCallback
@@ -64,14 +63,10 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     
     // MARK: - public methods
     
-    public func send(_ data: Data) {
-        peripheral.writeValue(data, for: characteristic!, type: .withResponse)
-    }
-    
     /// Start BLE devices discovering
     ///
-    /// Discovered devices with type ``CBPeripheral`` will be go
-    /// to `onDiscoverCallback` mentioned in ``init(onSuccessCallback:onDiscoverCallback:onFailCallback:)``
+    /// Discovered devices with type `CBPeripheral` will be go
+    /// to `onDiscoverCallback` mentioned in `init(onSuccessCallback:onDiscoverCallback:onFailCallback:)`
     public func discover() {
         centralManager = CBCentralManager(delegate: self, queue: nil)
     }
@@ -93,12 +88,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
             self.peripheral = peripheral
             self.peripheral.delegate = self
             centralManager!.connect(self.peripheral, options: nil)
-            // TODO: fix
-//            contecDeviceController = ContecDeviceController(
-//                writeValueCallback: sendData,
-//                saveResultDataCallback: saveResultData,
-//                onProgressUpdate: onProgressUpdate,
-//                onContecDeviceUpdateStatusCallback: onContecDeviceupdateStatusCallback)
+            gemocardDeviceController = GemocardDeviceController(writeValueCallback: sendData, onProgressUpdate: onProgressUpdate)
         } else {
             completion(.bluetoothIsOff)
         }
@@ -115,6 +105,24 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         } else {
             completion(.periferalIsNotReady)
         }
+    }
+    
+    public func getDeviceStatus(completion: @escaping GetDeviceStatus) {
+        if isPeriferalReady {
+            gemocardDeviceController?.getDeviceStatus(completion: completion)
+        } else {
+            self.completion(.periferalIsNotReady)
+        }
+    }
+    
+    // MARK: - private functions for ``ContecDevice`` usage
+    
+    private func sendData(_ data: Data) {
+        peripheral.writeValue(data, for: characteristic!, type: .withResponse)
+    }
+    
+    private func onContecDeviceupdateStatusCallback(_ completionCode: CompletionCodes) {
+        completion(completionCode)
     }
     
     // MARK: - central manager callbacks
@@ -199,9 +207,11 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         let bytes = data.bytes
         print("Reciving...", bytes)
         
-        if DataSerializer.crc(bytes) != bytes[bytes.count - 1] {
-            completion(.invalidCrc)
-        }
-//        contecDeviceController!.onDataReceived(data: int8Array)
+        gemocardDeviceController!.onDataReceived(data: bytes)
+        
+//        if DataSerializer.crc(bytes) != bytes[bytes.count - 1] {
+//            completion(.invalidCrc)
+//        }
+
     }
 }

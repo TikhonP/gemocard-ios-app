@@ -29,7 +29,7 @@ final class GemocardKit: ObservableObject {
     // MARK: - private functions
     
     private func startGemocardSDK() {
-        gemocardSDK = GemocardSDK(completion: gemocardSDKcomplition, onDiscoverCallback: onDiscoverCallback, onProgressUpdate: onProgressUpdate)
+        gemocardSDK = GemocardSDK(completion: gemocardSDKcompletion, onDiscoverCallback: onDiscoverCallback, onProgressUpdate: onProgressUpdate)
     }
     
     // MARK: - callbacks for Gemocard SDK usage
@@ -40,7 +40,7 @@ final class GemocardKit: ObservableObject {
         }
     }
     
-    func gemocardSDKcomplition(code: CompletionCodes) {
+    func gemocardSDKcompletion(code: CompletionCodes) {
         DispatchQueue.main.async {
             print("Updated status code: \(code)")
             
@@ -60,7 +60,6 @@ final class GemocardKit: ObservableObject {
                 break;
             case .connected:
                 self.isConnected = true
-                self.gemocardSDK.send(DataSerializer.deviceStatusQuery())
             case .invalidCrc:
                 break;
             }
@@ -102,5 +101,11 @@ final class GemocardKit: ObservableObject {
     
     func disconnect() {
         gemocardSDK.disconnect()
+    }
+    
+    func action() {
+        gemocardSDK.getDeviceStatus() { deviceStatus, cuffPressure in
+            print(deviceStatus, cuffPressure)
+        }
     }
 }
