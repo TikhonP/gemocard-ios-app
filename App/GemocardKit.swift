@@ -29,7 +29,7 @@ final class GemocardKit: ObservableObject {
     // MARK: - private functions
     
     private func startGemocardSDK() {
-        gemocardSDK = GemocardSDK(completion: gemocardSDKcompletion, onDiscoverCallback: onDiscoverCallback, onProgressUpdate: onProgressUpdate)
+        gemocardSDK = GemocardSDK(completion: gemocardSDKcompletion, onDiscoverCallback: onDiscoverCallback)
     }
     
     // MARK: - callbacks for Gemocard SDK usage
@@ -53,7 +53,8 @@ final class GemocardKit: ObservableObject {
             case .periferalIsNotFromThisQueue:
                 break;
             case .disconnected:
-                break;
+                self.isConnected = false
+                self.connectingPeripheral = nil
             case .failedToDiscoverServiceError:
                 break;
             case .periferalIsNotReady:
@@ -104,8 +105,54 @@ final class GemocardKit: ObservableObject {
     }
     
     func action() {
-        gemocardSDK.getDeviceStatus() { deviceStatus, cuffPressure in
-            print(deviceStatus, cuffPressure)
+        gemocardSDK.testAction()
+    }
+    
+    func getDeviceStatus() {
+        self.gemocardSDK.getDeviceStatus() { deviceStatus, deviceOperatingMode, cuffPressure in
+            print("Device status: \(deviceStatus), device operating mode: \(deviceOperatingMode), ciff pressure: \(cuffPressure)")
+        } оnFailure: { failureCode in
+            print("Error: \(failureCode)")
+        }
+    }
+    
+    func startMeasurement() {
+        gemocardSDK.startMeasurementForUser(user: 1)
+    }
+    
+    func setDateTime() {
+        gemocardSDK.setDateTime()
+    }
+    
+    func getDateTime() {
+        gemocardSDK.getDateTime() { date in
+            print("Date: \(String(describing: date))")
+        } оnFailure: { failureCode in
+            print("Error: \(failureCode)")
+        }
+    }
+    
+    func getNumberOfMeasurements() {
+        gemocardSDK.getNumberOfMeasurements() { measurementsCount in
+            print("Number of measurements: \(measurementsCount)")
+        } оnFailure: { failureCode in
+            print("Error: \(failureCode)")
+        }
+    }
+    
+    func getData() {
+        gemocardSDK.getData(ECG1: true) { data in
+            print("DATA: \(data)")
+        } оnFailure: { failureCode in
+            print("Error: \(failureCode)")
+        }
+    }
+    
+    func getResultsNumberOfPreviousMeasurement() {
+        gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: 1) { measurementResult in
+            print("Mesuremnt result: \(measurementResult)")
+        } оnFailure: { failureCode in
+            print("Error: \(failureCode)")
         }
     }
 }

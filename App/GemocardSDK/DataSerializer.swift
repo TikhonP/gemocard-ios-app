@@ -8,44 +8,6 @@
 
 import Foundation
 
-/// статус прибора
-enum DeviceStatus: UInt8 {
-    /// ожидание (готов к работе)
-    case readyWaiting = 0x00
-    
-    /// измерение
-    case measurement = 0x01
-    
-    /// тестовый режим
-    case testMode = 0x02
-    
-    /// ожидание серии (готов к работе в режиме серии измерений)
-    case readyWaitingSeries = 0x03
-    
-    /// измерение в режиме серии
-    case seriesMeasurement = 0x04
-    
-    /// ожидание последующего измерения в серии
-    case waitingNextSeriesMeasurement = 0x05
-    
-    case unknown
-}
-
-/// Режим работы прибора
-enum DeviceOperatingMode: UInt8 {
-    case arterialPressure = 0xF0
-    case Electrocardiogram = 0x0F
-    case arterialPressureAndElectrocardiogram = 0xFF
-}
-
-/// Active ECG channels
-enum MeasChan: UInt8 {
-    case LR = 0x01
-    case LR_FR = 0x03
-    case LR_FR_C1 = 0x07
-    case LR_FR_C1_C2_C3_C4_C5_C6 = 0xFF
-}
-
 /// All data in bytes to send to Gemocard
 class DataSerializer {
     
@@ -108,10 +70,19 @@ class DataSerializer {
     /// Ответ на запрос статуса прибора
     /// - Parameter bytes: byte array
     /// - Returns: current device status mode and  current cuff oreasure
-    class func deviceStatusDeserializer(bytes: [UInt8]) -> (deviceStatus: DeviceStatus, cuffPressure: UInt16) {
-        let deviceStatus: DeviceStatus = DeviceStatus(rawValue: bytes[2]) ?? .unknown
+    class func deviceStatusDeserializer(bytes: [UInt8]) -> (deviceStatus: DeviceStatus, deviceOperatingMode: DeviceOperatingMode, cuffPressure: UInt16) {
+        let deviceStatusCode = bytes[2] & 0x0F
+        let deviceStatus: DeviceStatus = DeviceStatus(rawValue: deviceStatusCode) ?? .unknown
+        var deviceOperatingMode: DeviceOperatingMode = .unknown
+        if ((bytes[2] & 0x80) != 0) && ((bytes[2] & 0x40) != 0) {
+            deviceOperatingMode = .arterialPressureAndElectrocardiogram
+        } else if ((bytes[2] & 0x80) != 0) {
+            deviceOperatingMode = .arterialPressure
+        } else if ((bytes[2] & 0x40) != 0) {
+            deviceOperatingMode = .Electrocardiogram
+        }
         let cuffPressure = DataSerializer.twoBytesToInt(msb: bytes[3], lsb: bytes[4])
-        return (deviceStatus, cuffPressure)
+        return (deviceStatus, deviceOperatingMode, cuffPressure)
     }
     
     /// Отмена измерения
@@ -126,7 +97,7 @@ class DataSerializer {
     class func setTime() -> Data {
         let date = Date()
         let calendar = Calendar.current
-        
+//        calendar.timeZone = TimeZone(identifier: "UTC")!
         let bytes: [UInt8] = [
             0xAA, 0x06, 0x0C,
             UInt8(calendar.component(.hour, from: date)),
@@ -160,6 +131,18 @@ class DataSerializer {
         return DataSerializer.addCrc(bytes)
     }
     
+    /// Ответ на запрос даты и времени из прибора
+    /// - Parameter bytes: byte array
+    /// - Returns: optional datetime
+    class func dateAndTimeFromDeviceDeserializer(bytes: [UInt8]) -> Date? {
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "UTC"),
+            year: Int(bytes[7]) + 2000, month: Int(bytes[6]), day: Int(bytes[5]),
+            hour: Int(bytes[4]), minute: Int(bytes[3]), second: Int(bytes[2])
+        )
+        let userCalendar = Calendar(identifier: .gregorian)
+        return userCalendar.date(from: dateComponents)
+    }
+    
     /// Стереть память прибора
     /// - Returns: serialized Data object
     class func eraseInstrumentDevice() -> Data {
@@ -185,7 +168,7 @@ class DataSerializer {
     /// - Parameter user: номер пользователя – N
     /// - Returns: serialized Data object
     class func startMeasurementForUser(user: UInt8) -> Data {
-        let bytes: [UInt8] = [0xAA, 0x03, 0x19, user, 0]
+        let bytes: [UInt8] = [0xAA, 0x04, 0x19, user, 0]
         return DataSerializer.addCrc(bytes)
     }
     
@@ -198,24 +181,13 @@ class DataSerializer {
     ///   - ECG4: флаг запроса отведения ЭКГ V1
     ///   - pressureWaveforms: флаг запроса осциллограммы давления
     /// - Returns: serialized Data object
-    class func startingExchangeInCombinedMode(
+    class func startingExchange(
         ECG1: Bool = false,
         ECG2: Bool = false,
         ECG4: Bool = false,
         pressureWaveforms: Bool = false
         //        photoplethysmogram: Bool = false  // Unsupported now
     ) -> Data {
-        
-        struct ExchangeMode : OptionSet {
-            let rawValue : UInt8
-            
-            static let ECG1   = Self(rawValue: 1 << 0)
-            static let ECG2  = Self(rawValue: 1 << 1)
-            static let ECG4  = Self(rawValue: 1 << 2)
-            static let pressureWaveforms = Self(rawValue: 1 << 3)
-            static let photoplethysmogram = Self(rawValue: 1 << 4)
-        }
-        
         var exchangeMode: ExchangeMode = []
         if ECG1 { exchangeMode.insert(.ECG1) }
         if ECG2 { exchangeMode.insert(.ECG2) }
@@ -257,17 +229,40 @@ class DataSerializer {
     
     /// Запрос количества измерений в памяти устройства
     /// - Returns: serialized Data object
-    class func qequestingNumberOfMeasurementsInDeviceMemory() -> Data {
+    class func getNumberOfMeasurementsInDeviceMemory() -> Data {
         let bytes: [UInt8] = [0xAA, 0x03, 0x65, 0]
         return DataSerializer.addCrc(bytes)
+    }
+    
+    /// Ответ на запрос количества измерений в памяти устройства
+    /// - Parameter bytes: byte array
+    /// - Returns: number of measuremnnts in memory
+    class func numberOfMeasurementsInDeviceMemoryDeserializer(bytes: [UInt8]) -> UInt8 {
+        return bytes[2]
     }
     
     /// Запрос результатов N предыдущего измерения
     /// - Parameter numberOfPreviousMeasurement: номер измерения
     /// - Returns: serialized Data object
-    class func queryResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8) -> Data {
+    class func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8) -> Data {
         let bytes: [UInt8] = [0xAA, 0x04, 0x66, numberOfPreviousMeasurement, 0]
         return DataSerializer.addCrc(bytes)
+    }
+    
+    /// Ответ на запрос результатов N предыдущего измерения
+    /// - Parameter bytes: byte array
+    /// - Returns: measurement results struct
+    class func resultsNumberOfPreviousMeasurementDeserializer(bytes: [UInt8]) -> MeasurementResult {
+        let measurementResult = MeasurementResult(
+            deviceOperatingMode: DeviceOperatingMode(rawValue: bytes[2]) ?? .unknown,
+            measChan: MeasChan(rawValue: bytes[3]) ?? .unknown,
+            maxMeasurementLength: Int(bytes[4]),
+            sampleRate: SampleRate(rawValue: bytes[5]) ?? .unknown,
+            arterialPressureWavefromNumber: Int(bytes[6]),
+            userNumber: Int(bytes[7]),
+            pointerToBeginningOfCardiogramInMemory: Int(DataSerializer.twoBytesToInt(msb: bytes[8], lsb: bytes[9])),
+            year: Int(bytes[10]), month: Int(bytes[11]), day: Int(bytes[12]), hour: Int(bytes[13]), minute: Int(bytes[14]), second: Int(bytes[15]))
+        return measurementResult
     }
     
     /// Команда считывает заголовок и весь ЭКГ-сигнал

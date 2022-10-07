@@ -34,8 +34,28 @@ typealias WriteValueCallback = (_ data: Data) -> Void
 
 // MARK: - GemocardController commands completions
 
+/// Callback for gemocard controller failure
+/// - Parameter failureCode: error code
+typealias OnFailure = (_ failureCode: FailureCodes) -> Void
+
 /// Device status completion
 /// - Parameters:
 ///  - deviceStatus: Current device status mode
 ///  - cuffPressure: Current cuff oreasure
-typealias GetDeviceStatus = (_ deviceStatus: DeviceStatus, _ cuffPressure: UInt16) -> Void
+typealias GetDeviceStatusCompletion = (_ deviceStatus: DeviceStatus, _ deviceOperatingMode: DeviceOperatingMode, _ cuffPressure: UInt16) -> Void
+
+/// Get device datetimne completion
+/// - Parameter date: optional datetime
+typealias GetDateAndTimeFromDeviceCompletion = (_ date: Date?) -> Void
+
+/// Get nukmber of measurements in device memory completion
+/// - Parameter measurementsCount: number of measuremnts
+typealias GetNumberOfMeasurementsInDeviceMemoryCompletion = (_ measurementsCount: Int) -> Void
+
+/// Get data completion
+/// - Parameter data: array of packets
+typealias GetDataCompletion = (_ data: [GetDataModel]) -> Void
+
+/// Get results N previous measurent
+/// - Parameter measurementResult: measurement results struct
+typealias GetResultsNumberOfPreviousMeasurementCompletion = (_ measurementResult: MeasurementResult) -> Void

@@ -13,6 +13,9 @@
 		434EE0B028EC49B700591830 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 434EE0AF28EC49B700591830 /* Preview Assets.xcassets */; };
 		434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0B828EC4BDC00591830 /* UserDefaults+AppPrefs.swift */; };
 		434EE0BB28EC4C8600591830 /* GemocardSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0BA28EC4C8600591830 /* GemocardSDK.swift */; };
+		436ADB9928F06F3A003361E7 /* GetDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9828F06F3A003361E7 /* GetDataController.swift */; };
+		436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */; };
+		436ADB9D28F0819F003361E7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9C28F0819F003361E7 /* Models.swift */; };
 		43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */; };
 		43E0E66E28EDB2360010A363 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E66D28EDB2360010A363 /* MainView.swift */; };
 		43E0E67128EDD52D0010A363 /* DataSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E67028EDD52D0010A363 /* DataSerializer.swift */; };
@@ -29,6 +32,9 @@
 		434EE0AF28EC49B700591830 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		434EE0B828EC4BDC00591830 /* UserDefaults+AppPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+AppPrefs.swift"; sourceTree = "<group>"; };
 		434EE0BA28EC4C8600591830 /* GemocardSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemocardSDK.swift; sourceTree = "<group>"; };
+		436ADB9828F06F3A003361E7 /* GetDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetDataController.swift; sourceTree = "<group>"; };
+		436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncQueue.swift; sourceTree = "<group>"; };
+		436ADB9C28F0819F003361E7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemocardKit.swift; sourceTree = "<group>"; };
 		43E0E66D28EDB2360010A363 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		43E0E66F28EDB4360010A363 /* Medsenger-Gemocard-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Medsenger-Gemocard-Info.plist"; sourceTree = "<group>"; };
@@ -98,6 +104,9 @@
 				43E0E67028EDD52D0010A363 /* DataSerializer.swift */,
 				43E0E67728EEDC410010A363 /* GemocardDeviceController.swift */,
 				43E0E67928EF35DD0010A363 /* ComplitionType.swift */,
+				436ADB9828F06F3A003361E7 /* GetDataController.swift */,
+				436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */,
+				436ADB9C28F0819F003361E7 /* Models.swift */,
 			);
 			path = GemocardSDK;
 			sourceTree = "<group>";
@@ -182,11 +191,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				436ADB9928F06F3A003361E7 /* GetDataController.swift in Sources */,
 				43E0E67828EEDC410010A363 /* GemocardDeviceController.swift in Sources */,
 				43E0E67A28EF35DD0010A363 /* ComplitionType.swift in Sources */,
 				434EE0BB28EC4C8600591830 /* GemocardSDK.swift in Sources */,
 				43E0E66E28EDB2360010A363 /* MainView.swift in Sources */,
 				43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */,
+				436ADB9D28F0819F003361E7 /* Models.swift in Sources */,
+				436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */,
 				43E0E67328EDDA4F0010A363 /* Data+.swift in Sources */,
 				434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */,
 				434EE0AB28EC49B500591830 /* RootView.swift in Sources */,

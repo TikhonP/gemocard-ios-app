@@ -41,8 +41,22 @@ struct MainView: View {
                     }
                 }
             }
-            Button(action: gemocardKit.action) {
-                Text("lolkek")
+            Form {
+                Section {
+                    Button(action: gemocardKit.action) {
+                        Text("lolkek")
+                    }
+                }
+                
+                Section {
+                    Button(action: gemocardKit.getDeviceStatus) { Text("Получить статус") }
+                    Button(action: gemocardKit.startMeasurement) { Text("Начать измерение") }
+                    Button(action: gemocardKit.setDateTime) { Text("Настроить время") }
+                    Button(action: gemocardKit.getDateTime) { Text("Получить время устройства") }
+                    Button(action: gemocardKit.getNumberOfMeasurements) { Text("Получть количество измерений") }
+                    Button(action: gemocardKit.getData) { Text("Загрузить данные") }
+                    Button(action: gemocardKit.getResultsNumberOfPreviousMeasurement) { Text("Загрузить N измерение") }
+                }
             }
         }
         .onAppear {
