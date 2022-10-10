@@ -18,17 +18,17 @@ class DataSerializer {
     ///   - msb: first byte
     ///   - lsb: second byte
     /// - Returns: single number
-    class func twoBytesToInt(msb: UInt8, lsb: UInt8) -> UInt16 {
-        return (UInt16(msb) << 8) | UInt16(lsb)
+    class func twoBytesToInt(MSBs: UInt8, LSBs: UInt8) -> UInt16 {
+        return (UInt16(MSBs) << 8) | UInt16(LSBs)
     }
     
     /// Convert UInt to two UInt8 bytes
     /// - Parameter number: Number to convert
     /// - Returns: Two bytes: (msb, lsb)
-    class func intToTwoBytes(_ number: UInt16) -> (msb: UInt8, lsb: UInt8) {
-        let lsb = UInt8(number & 0b11111111)
-        let msb = UInt8(number >> 8)
-        return (msb, lsb)
+    class func intToTwoBytes(_ number: UInt16) -> (MSBs: UInt8, LSBs: UInt8) {
+        let LSBs = UInt8(number & 0b11111111)
+        let MSBs = UInt8(number >> 8)
+        return (MSBs, LSBs)
     }
     
     /// CRC-8 Maxim/Dallas Algorithm
@@ -81,7 +81,7 @@ class DataSerializer {
         } else if ((bytes[2] & 0x40) != 0) {
             deviceOperatingMode = .Electrocardiogram
         }
-        let cuffPressure = DataSerializer.twoBytesToInt(msb: bytes[3], lsb: bytes[4])
+        let cuffPressure = DataSerializer.twoBytesToInt(MSBs: bytes[3], LSBs: bytes[4])
         return (deviceStatus, deviceOperatingMode, cuffPressure)
     }
     
@@ -172,6 +172,22 @@ class DataSerializer {
         return DataSerializer.addCrc(bytes)
     }
     
+    /// Запрос результатов N предыдущего измерения
+    /// - Parameter numberOfPreviousMeasurement: номер измерения
+    /// - Returns: serialized Data object
+    class func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16) -> Data {
+        let results = DataSerializer.intToTwoBytes(numberOfPreviousMeasurement)
+        let bytes: [UInt8] = [0xAA, 0x05, 0x26, results.MSBs, results.LSBs, 0]
+        return DataSerializer.addCrc(bytes)
+    }
+    
+    /// Ответ на запрос результатов N предыдущего измерения
+    /// - Parameter bytes: byte array
+    /// - Returns: Mesurement result instance
+    class func resultsNumberOfPreviousMeasurementDeserializer(bytes: [UInt8]) -> MeasurementResult {
+        return MeasurementResult.deserialize(bytes: bytes)
+    }
+    
     // MARK: - Команды ГемоКард
     
     /// Запуск обмена в комбинированном  режиме
@@ -244,7 +260,7 @@ class DataSerializer {
     /// Запрос результатов N предыдущего измерения
     /// - Parameter numberOfPreviousMeasurement: номер измерения
     /// - Returns: serialized Data object
-    class func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8) -> Data {
+    class func getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8) -> Data {
         let bytes: [UInt8] = [0xAA, 0x04, 0x66, numberOfPreviousMeasurement, 0]
         return DataSerializer.addCrc(bytes)
     }
@@ -252,23 +268,14 @@ class DataSerializer {
     /// Ответ на запрос результатов N предыдущего измерения
     /// - Parameter bytes: byte array
     /// - Returns: measurement results struct
-    class func resultsNumberOfPreviousMeasurementDeserializer(bytes: [UInt8]) -> MeasurementResult {
-        let measurementResult = MeasurementResult(
-            deviceOperatingMode: DeviceOperatingMode(rawValue: bytes[2]) ?? .unknown,
-            measChan: MeasChan(rawValue: bytes[3]) ?? .unknown,
-            maxMeasurementLength: Int(bytes[4]),
-            sampleRate: SampleRate(rawValue: bytes[5]) ?? .unknown,
-            arterialPressureWavefromNumber: Int(bytes[6]),
-            userNumber: Int(bytes[7]),
-            pointerToBeginningOfCardiogramInMemory: Int(DataSerializer.twoBytesToInt(msb: bytes[8], lsb: bytes[9])),
-            year: Int(bytes[10]), month: Int(bytes[11]), day: Int(bytes[12]), hour: Int(bytes[13]), minute: Int(bytes[14]), second: Int(bytes[15]))
-        return measurementResult
+    class func resultsHeaderNumberOfPreviousMeasurementDeserializer(bytes: [UInt8]) -> MeasurementHeaderResult {
+        return MeasurementHeaderResult.deserialize(bytes: bytes)
     }
     
     /// Команда считывает заголовок и весь ЭКГ-сигнал
     /// - Parameter numberOfPreviousECG: Number of ECG
     /// - Returns: serialized Data object
-    class func queryResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8) -> Data {
+    class func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8) -> Data {
         let bytes: [UInt8] = [0xAA, 0x04, 0x67, numberOfPreviousECG, 0]
         return DataSerializer.addCrc(bytes)
     }
@@ -283,9 +290,9 @@ class DataSerializer {
     ///   - numberOfPreviousECG: Number of ECG
     ///   - packetNumber: Packet number
     /// - Returns: serialized Data object
-    class func queryResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, packetNumber: UInt16) -> Data {
+    class func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, packetNumber: UInt16) -> Data {
         let packetNumberBytes = DataSerializer.intToTwoBytes(packetNumber)
-        let bytes: [UInt8] = [0xAA, 0x04, 0x67, numberOfPreviousECG, packetNumberBytes.msb, packetNumberBytes.lsb, 0]
+        let bytes: [UInt8] = [0xAA, 0x04, 0x67, numberOfPreviousECG, packetNumberBytes.MSBs, packetNumberBytes.LSBs, 0]
         return DataSerializer.addCrc(bytes)
     }
     

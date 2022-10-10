@@ -34,10 +34,10 @@ struct GetDataModel {
 }
 
 /// Controller for managing incoming data in exchange mode
-class GetDataController {
+class GetECGController {
     
     private let resetExchangeCallback: () -> Void
-    private let comletion: GetDataCompletion
+    private let comletion: GetECGCompletion
     private let оnFailure: OnFailure
     
     private var timer: Timer?
@@ -50,7 +50,7 @@ class GetDataController {
     
     init(
         resetExchangeCallback: @escaping () -> Void,
-        comletion: @escaping GetDataCompletion,
+        comletion: @escaping GetECGCompletion,
         оnFailure: @escaping OnFailure
     ) {
         self.resetExchangeCallback = resetExchangeCallback

@@ -56,6 +56,14 @@ typealias GetNumberOfMeasurementsInDeviceMemoryCompletion = (_ measurementsCount
 /// - Parameter data: array of packets
 typealias GetDataCompletion = (_ data: [GetDataModel]) -> Void
 
+/// Get header results N previous measurent
+/// - Parameter measurementHeaderResult: measurement headers results struct
+typealias GetHeaderResultsNumberOfPreviousMeasurementCompletion = (_ measurementHeaderResult: MeasurementHeaderResult) -> Void
+
 /// Get results N previous measurent
 /// - Parameter measurementResult: measurement results struct
 typealias GetResultsNumberOfPreviousMeasurementCompletion = (_ measurementResult: MeasurementResult) -> Void
+
+/// Get ECG completion
+/// - Parameter data: array of packets
+typealias GetECGCompletion = (_ data: [Int]) -> Void

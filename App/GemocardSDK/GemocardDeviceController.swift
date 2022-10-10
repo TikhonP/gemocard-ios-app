@@ -12,7 +12,9 @@ class CompletionStorage {
     public var getDeviceStatus: GetDeviceStatusCompletion!
     public var getDateAndTimeFromDevice: GetDateAndTimeFromDeviceCompletion!
     public var getNumberOfMeasurementsInDeviceMemory: GetNumberOfMeasurementsInDeviceMemoryCompletion!
+    public var getHeaderResultsNumberOfPreviousMeasurement: GetHeaderResultsNumberOfPreviousMeasurementCompletion!
     public var getResultsNumberOfPreviousMeasurement: GetResultsNumberOfPreviousMeasurementCompletion!
+    public var getECG: GetECGCompletion!
     
     public var оnFailure: OnFailure!
 }
@@ -27,8 +29,9 @@ enum GemocardDeviceControllerStatus {
     case getDeviceStatus
     case getDateAndTimeFromDevice
     case getNumberOfMeasurementsInDeviceMemory
-    case exchangeMode
+    case getHeaderResultsNumberOfPreviousMeasurement
     case getResultsNumberOfPreviousMeasurement
+    case getECG
 }
 
 /// Implements steps and methods to communicate with Gemocard
@@ -45,7 +48,9 @@ class GemocardDeviceController {
     
     private var completionStorage = CompletionStorage()
     
-    private var getDataController: GetDataController?
+    private var getECGController: GetECGController?
+    
+    private var dataStorage: [UInt8]?
     
     /// Initilize ``GemocardDeviceController`` store all callbacks
     /// - Parameters:
@@ -82,7 +87,7 @@ class GemocardDeviceController {
     public func onDataReceived(data: [UInt8]) {
         switch status {
         case .unknown:
-            break;
+            print("onDataReceived: status unknown")
         case .getDeviceStatus:
             stopTimer()
             guard validateCRC(data) else {
@@ -113,18 +118,35 @@ class GemocardDeviceController {
             let measurementsCount = DataSerializer.numberOfMeasurementsInDeviceMemoryDeserializer(bytes: data)
             completionStorage.getNumberOfMeasurementsInDeviceMemory(Int(measurementsCount))
             status = .unknown
-        case .exchangeMode:
-            getDataController?.onDataReceived(data: data)
-        case .getResultsNumberOfPreviousMeasurement:
+        case .getHeaderResultsNumberOfPreviousMeasurement:
             stopTimer()
             guard validateCRC(data) else {
                 completionStorage.оnFailure(.invalidCrc)
                 status = .unknown
                 return
             }
-            let measurementResult = DataSerializer.resultsNumberOfPreviousMeasurementDeserializer(bytes: data)
-            completionStorage.getResultsNumberOfPreviousMeasurement(measurementResult)
+            let measurementHeaderResult = DataSerializer.resultsHeaderNumberOfPreviousMeasurementDeserializer(bytes: data)
+            completionStorage.getHeaderResultsNumberOfPreviousMeasurement(measurementHeaderResult)
             status = .unknown
+        case .getResultsNumberOfPreviousMeasurement:
+            guard let getDataStorage = dataStorage else {
+                dataStorage = data
+                startTimer()
+                break
+            }
+            let finalData = getDataStorage + data
+            stopTimer()
+            guard validateCRC(finalData) else {
+                completionStorage.оnFailure(.invalidCrc)
+                status = .unknown
+                return
+            }
+            let measurementResult = DataSerializer.resultsNumberOfPreviousMeasurementDeserializer(bytes: finalData)
+            completionStorage.getResultsNumberOfPreviousMeasurement(measurementResult)
+            dataStorage = nil
+            status = .unknown
+        case .getECG:
+            getECGController?.onDataReceived(data: data)
         }
     }
     
@@ -165,25 +187,26 @@ class GemocardDeviceController {
         startTimer()
     }
     
-    public func startingExchange(
-        ECG1: Bool = false,
-        ECG2: Bool = false,
-        ECG4: Bool = false,
-        pressureWaveforms: Bool = false,
-        completion: @escaping GetDataCompletion,
-        оnFailure: @escaping OnFailure
-    ) {
-        status = .exchangeMode
-        writeValueCallback(DataSerializer.startingExchange(ECG1: ECG1, ECG2: ECG2, ECG4: ECG4, pressureWaveforms: pressureWaveforms))
-        getDataController = GetDataController(resetExchangeCallback: resetExchange, comletion: completion, оnFailure: оnFailure)
+    public func getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8, completion: @escaping GetHeaderResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+        status = .getHeaderResultsNumberOfPreviousMeasurement
+        completionStorage.getHeaderResultsNumberOfPreviousMeasurement = completion
+        completionStorage.оnFailure = оnFailure
+        writeValueCallback(DataSerializer.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement))
+        startTimer()
     }
     
-    public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+    public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         status = .getResultsNumberOfPreviousMeasurement
         completionStorage.getResultsNumberOfPreviousMeasurement = completion
         completionStorage.оnFailure = оnFailure
         writeValueCallback(DataSerializer.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement))
         startTimer()
+    }
+    
+    public func queryResultsNumberOfPreviousECG(numberOfPreviousMeasurement: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
+        status = .getECG
+        writeValueCallback(DataSerializer.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousMeasurement))
+        getECGController = GetECGController(resetExchangeCallback: resetExchange, comletion: completion, оnFailure: оnFailure)
     }
     
     /// Use for invalid crc

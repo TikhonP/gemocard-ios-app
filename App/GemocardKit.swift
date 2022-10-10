@@ -16,6 +16,9 @@ final class GemocardKit: ObservableObject {
     
     private var gemocardSDK: GemocardSDK!
     
+    private var measurementsCount = 0
+    private var currentMeasurement: UInt16 = 1
+    
     // MARK: - published vars
     
     @Published var isConnected = false
@@ -141,18 +144,37 @@ final class GemocardKit: ObservableObject {
     }
     
     func getData() {
-        gemocardSDK.getData(ECG1: true) { data in
-            print("DATA: \(data)")
+        DispatchQueue.main.async {
+            self.gemocardSDK.getNumberOfMeasurements { measurementsCount in
+                self.measurementsCount = measurementsCount
+                self.currentMeasurement = 1
+                print("Measurement count: \(measurementsCount)")
+                self.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement)
+            } оnFailure: { failureCode in
+                print("Error: \(failureCode)")
+            }
+        }
+    }
+    
+    func getHeaderResultsNumberOfPreviousMeasurement() {
+        gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: 1) { measurementResult in
+            print("Mesuremnt result: \(measurementResult)")
         } оnFailure: { failureCode in
             print("Error: \(failureCode)")
         }
     }
     
-    func getResultsNumberOfPreviousMeasurement() {
-        gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: 1) { measurementResult in
-            print("Mesuremnt result: \(measurementResult)")
-        } оnFailure: { failureCode in
-            print("Error: \(failureCode)")
+    func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16) {
+        DispatchQueue.main.async {
+            self.gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement) { measurementResult in
+                print("Mesuremnt result: \(measurementResult)")
+                self.currentMeasurement += 1
+                if self.currentMeasurement <= self.measurementsCount {
+                    self.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement)
+                }
+            } оnFailure: { failureCode in
+                print("Error: \(failureCode)")
+            }
         }
     }
 }

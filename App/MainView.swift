@@ -55,7 +55,12 @@ struct MainView: View {
                     Button(action: gemocardKit.getDateTime) { Text("Получить время устройства") }
                     Button(action: gemocardKit.getNumberOfMeasurements) { Text("Получть количество измерений") }
                     Button(action: gemocardKit.getData) { Text("Загрузить данные") }
-                    Button(action: gemocardKit.getResultsNumberOfPreviousMeasurement) { Text("Загрузить N измерение") }
+                    Button(action: gemocardKit.getHeaderResultsNumberOfPreviousMeasurement) { Text("Загрузить N хедер измерение") }
+                    Button(action: {
+                        gemocardKit.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: 1)
+                    }) {
+                        Text("Загрузить N измерение")
+                    }
                 }
             }
         }

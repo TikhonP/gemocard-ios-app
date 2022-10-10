@@ -67,7 +67,7 @@ enum SampleRate: UInt8 {
     case unknown = 0x00
 }
 
-struct MeasurementResult {
+struct MeasurementHeaderResult {
     let deviceOperatingMode: DeviceOperatingMode
     let measChan: MeasChan
     
@@ -76,7 +76,7 @@ struct MeasurementResult {
     let sampleRate: SampleRate
     
     let arterialPressureWavefromNumber: Int
-    let userNumber: Int
+    let userId: Int
     
     /// Указатель на начало кардиограммы в памяти. Нужно для контроля перезаписи устаревших сигналов.
     /// При перекрывающихся адресах, актуальной кардиограммой считается та, у которой N меньше.
@@ -88,4 +88,112 @@ struct MeasurementResult {
     let hour: Int
     let minute: Int
     let second: Int
+    
+    static func deserialize(bytes: [UInt8]) -> MeasurementHeaderResult {
+        let measurementResult = MeasurementHeaderResult(
+            deviceOperatingMode: DeviceOperatingMode(rawValue: bytes[2]) ?? .unknown,
+            measChan: MeasChan(rawValue: bytes[3]) ?? .unknown,
+            maxMeasurementLength: Int(bytes[4]),
+            sampleRate: SampleRate(rawValue: bytes[5]) ?? .unknown,
+            arterialPressureWavefromNumber: Int(bytes[6]),
+            userId: Int(bytes[7]),
+            pointerToBeginningOfCardiogramInMemory: Int(DataSerializer.twoBytesToInt(MSBs: bytes[8], LSBs: bytes[9])),
+            year: Int(bytes[10]), month: Int(bytes[11]), day: Int(bytes[12]), hour: Int(bytes[13]), minute: Int(bytes[14]), second: Int(bytes[15]))
+        return measurementResult
+    }
+    
+    var date: Date {
+        let calendar = Calendar(identifier: .gregorian)
+        let dateComponents = DateComponents(timeZone: TimeZone.current, year: year, month: month, day: day, hour: hour, minute: minute, second: second)
+        return calendar.date(from: dateComponents)!
+    }
+}
+
+/// Флаг завершения серии изм
+enum ChangeSeriesEndFlag: UInt8 {
+
+    /// не является ЗЗС
+    case notZZC = 0x00
+    
+    /// серия отменена
+    case seriesCanceled = 0xCA
+    
+    /// серия завершена успешно
+    case seriesSuccess = 0x5F
+    
+    case unknown = 0x01
+}
+
+enum ArrhythmiaStatus: UInt8 {
+    case noRhythmDisturbances = 0x00
+    case singleRhythmDisorder = 0x01
+    case repeatedRhythmDisturbances = 0x02
+    case prolongedArrhythmia = 0x03
+    
+    case unknown = 0x04
+}
+
+struct MeasurementResult {
+    
+    /// MeasMode: 1 – серия, 0 – обычное измерение
+    let measMode: Bool
+    
+    /// Period: период измерений в [¼ мин], от 6 до 40, по умолчанию 8
+    let period: Int
+    
+    /// изначально запланированное число изм. в серии
+    let originallyPlannedNumberOfRevisionsInSeries: Int
+    
+    /// номер успешного изм. в серии (число успешных изм. в серии для ЗЗС)
+    let numberOfSuccessfulMeasurment: Int
+    
+    let changeSeriesEndFlag: ChangeSeriesEndFlag
+    
+    /// ID серии измерений
+    let idSeriesOfMeasurement: Int
+    
+    /// номер пользователя
+    let userId: Int
+    
+    let systolicBloodPressure: Int
+    let diastolicBloodPressure: Int
+    let pulse: Int
+    
+    let arrhythmiaStatus: ArrhythmiaStatus
+    
+    /// Число/процент нарушений ритма:
+    /// - если статус аритмии "однократное нарушение ритма" или "многократные нарушения ритма", то число нарушений ритма
+    /// - если статус аритмии "продолжительная аритмия", то процент нарушений ритма
+    let rhythmDisturbances: Int
+    
+    let year: Int
+    let month: Int
+    let day: Int
+    let hour: Int
+    let minute: Int
+    let second: Int
+    
+    static func deserialize(bytes: [UInt8]) -> MeasurementResult {
+        let measurementResult = MeasurementResult(
+            measMode: ((bytes[2] >> 7) != 0),
+            period: Int(bytes[2] & 0x0F),
+            originallyPlannedNumberOfRevisionsInSeries: Int(bytes[3]),
+            numberOfSuccessfulMeasurment: Int(bytes[4]),
+            changeSeriesEndFlag: ChangeSeriesEndFlag(rawValue: bytes[6]) ?? .unknown,
+            idSeriesOfMeasurement: Int(bytes[7]),
+            userId: Int(bytes[8]),
+            systolicBloodPressure: Int(DataSerializer.twoBytesToInt(MSBs: bytes[9], LSBs: bytes[10])),
+            diastolicBloodPressure: Int(DataSerializer.twoBytesToInt(MSBs: bytes[11], LSBs: bytes[12])),
+            pulse: Int(bytes[13]),
+            arrhythmiaStatus: ArrhythmiaStatus(rawValue: bytes[14]) ?? .unknown,
+            rhythmDisturbances: Int(bytes[15]),
+            year: Int(bytes[16]), month: Int(bytes[17]), day: Int(bytes[18]), hour: Int(bytes[19]), minute: Int(bytes[20]), second: Int(bytes[21]))
+        return measurementResult
+    }
+    
+    var date: Date {
+        let calendar = Calendar(identifier: .gregorian)
+        let dateComponents = DateComponents(timeZone: TimeZone.current, year: year, month: month, day: day, hour: hour, minute: minute, second: second)
+        return calendar.date(from: dateComponents)!
+    }
 }

@@ -57,6 +57,24 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         self.onDiscoverCallback = onDiscoverCallback
     }
     
+    // MARK: - private methods
+    
+    private func checkIsSentralManagerReady(completion: () -> Void) {
+        if isCentralManagerReady {
+            completion()
+        } else {
+            self.completion(.bluetoothIsOff)
+        }
+    }
+    
+    private func checkIfPeripheralReady(completion: () -> Void) {
+        if isPeriferalReady {
+            completion()
+        } else {
+            self.completion(.periferalIsNotReady)
+        }
+    }
+    
     // MARK: - public methods
     
     /// Start BLE devices discovering
@@ -69,53 +87,41 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     
     /// Stop BLE devices discovering
     public func stopDiscover() {
-        if isCentralManagerReady {
+        checkIsSentralManagerReady() {
             centralManager!.stopScan()
-        } else {
-            completion(.bluetoothIsOff)
         }
     }
     
     /// Connect to suggested peripheral
     /// - Parameter peripheral: BLE devices from discovered device callback
     public func connect(_ peripheral: CBPeripheral) {
-        if isCentralManagerReady {
+        checkIsSentralManagerReady() {
             centralManager!.stopScan()
             self.peripheral = peripheral
             self.peripheral.delegate = self
             centralManager!.connect(self.peripheral, options: nil)
             gemocardDeviceController = GemocardDeviceController(writeValueCallback: sendData)
-        } else {
-            completion(.bluetoothIsOff)
         }
     }
     
     /// Disconnect peripheral
     public func disconnect() {
-        if isPeriferalReady {
-            if isCentralManagerReady {
+        checkIfPeripheralReady() {
+            checkIsSentralManagerReady() {
                 centralManager!.cancelPeripheralConnection(peripheral)
-            } else {
-                completion(.bluetoothIsOff)
             }
-        } else {
-            completion(.periferalIsNotReady)
         }
     }
     
     public func getDeviceStatus(completion: @escaping GetDeviceStatusCompletion, оnFailure: @escaping OnFailure) {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.getDeviceStatus(completion: completion, оnFailure: оnFailure)
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
     public func startMeasurementForUser(user: UInt8) {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.startMeasurementForUser(user: user)
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
@@ -127,56 +133,50 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         completion: @escaping GetDataCompletion,
         оnFailure: @escaping OnFailure
     ) {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.startingExchange(
                 ECG1: ECG1, ECG2: ECG2, ECG4: ECG4, pressureWaveforms: pressureWaveforms, completion: completion, оnFailure: оnFailure
             )
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
     public func setDateTime() {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.setDateTime()
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
     public func getDateTime(completion: @escaping GetDateAndTimeFromDeviceCompletion, оnFailure: @escaping OnFailure) {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.getDateAndTimeFromDevice(completion: completion, оnFailure: оnFailure)
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
     public func getNumberOfMeasurements(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.getNumberOfMeasurementsInDeviceMemory(completion: completion, оnFailure: оnFailure)
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
-    public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
-        if isPeriferalReady {
+    public func getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8, completion: @escaping GetHeaderResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+        checkIfPeripheralReady() {
+            gemocardDeviceController?.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
+        }
+    }
+    
+    public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
     public func testAction() {
-        if isPeriferalReady {
+        checkIfPeripheralReady() {
             gemocardDeviceController?.getNumberOfMeasurementsInDeviceMemory() { measurementsCount in
                 print("Number of measurements: \(measurementsCount)")
             } оnFailure: { failureCode in
                 print("Failure code: \(failureCode)")
             }
-        } else {
-            self.completion(.periferalIsNotReady)
         }
     }
     
