@@ -35,9 +35,11 @@ class PersistenceController: ObservableObject {
         }
     }
     
-    func createMeasurementFromStruct(measurement: MeasurementResult, objectHash: Int, ecgData: [UInt32], ecgStatusData: [UInt8], context: NSManagedObjectContext) {
+    func createMeasurementFromStruct(measurement: MeasurementResult, measurementHeader: MeasurementHeaderResult, ecgData: [UInt32], ecgStatusData: [UInt8], context: NSManagedObjectContext) {
         let measurementModel = Measurement(context: context)
+        
         measurementModel.id = UUID()
+        
         measurementModel.date = measurement.date
         measurementModel.measMode = measurement.measMode
         measurementModel.period = measurement.period
@@ -51,9 +53,20 @@ class PersistenceController: ObservableObject {
         measurementModel.pulse = measurement.pulse
         measurementModel.arrhythmiaStatus = Int16(measurement.arrhythmiaStatus.rawValue)
         measurementModel.rhythmDisturbances = measurement.rhythmDisturbances
-        measurementModel.objectHash = Int64(objectHash)
+        
         measurementModel.ecgData = ecgData
         measurementModel.ecgStatusData = ecgStatusData
+        
+        measurementModel.deviceOperatingMode = Int16(measurementHeader.deviceOperatingMode.rawValue)
+        measurementModel.measChan = Int16(measurementHeader.measChan.rawValue)
+        measurementModel.maxMeasurementLength = measurementHeader.maxMeasurementLength
+        measurementModel.sampleRate = Int16(measurementHeader.sampleRate.rawValue)
+        measurementModel.arterialPressureWavefromNumber = measurementHeader.arterialPressureWavefromNumber
+        measurementModel.userId = measurementHeader.userId
+        measurementModel.pointerToBeginningOfCardiogramInMemory = measurementHeader.pointerToBeginningOfCardiogramInMemory
+        
+        measurementModel.headerHash = Int64(measurementHeader.hashValue)
+        
         save(context: context)
     }
 }

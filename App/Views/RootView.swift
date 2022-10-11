@@ -13,6 +13,13 @@ struct RootView: View {
     
     var body: some View {
         MainView()
+            .alert(item: $gemocardKit.error, content: { error in
+                Alert(
+                    title: Text(error.title),
+                    message: Text(error.description),
+                    dismissButton: .default(Text("Close"))
+                )
+            })
             .onAppear(perform: { gemocardKit.initilizeGemocard() })
             .environmentObject(gemocardKit)
     }

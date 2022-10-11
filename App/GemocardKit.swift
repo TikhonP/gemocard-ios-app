@@ -6,6 +6,7 @@
 //  Copyright © 2022 OOO Telepat. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import CoreBluetooth
 
@@ -25,13 +26,34 @@ final class GemocardKit: ObservableObject {
     
     @Published var isConnected = false
     @Published var isBluetoothOn = true
+    @Published var fetchingDataWithGemocard = false
+    @Published var showBluetoothIsOffWarning = false
+    @Published var showSelectDevicesInfo = false
     
     @Published var progress: Float = 0.0
     
     @Published var devices: [CBPeripheral] = []
     @Published var connectingPeripheral: CBPeripheral?
     
+    @Published var error: ErrorInfo?
+    
+    @Published var navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
+    
     // MARK: - private functions
+    
+    /// Throw alert from ``ErrorAlerts`` class
+    /// - Parameters:
+    ///   - errorInfo: ``ErrorInfo`` instance
+    ///   - feedbackType: optional feedback type if you need haptic feedback
+    private func throwAlert(_ errorInfo: ErrorInfo, _ feedbackType: UINotificationFeedbackGenerator.FeedbackType? = nil) {
+        DispatchQueue.main.async {
+            if let feedbackType = feedbackType {
+                HapticFeedbackController.shared.prepareNotify()
+                HapticFeedbackController.shared.notify(feedbackType)
+            }
+            self.error = errorInfo
+        }
+    }
     
     private func startGemocardSDK() {
         gemocardSDK = GemocardSDK(completion: gemocardSDKcompletion, onDiscoverCallback: onDiscoverCallback)
@@ -51,67 +73,76 @@ final class GemocardKit: ObservableObject {
     
     private func processMeasurementHeaderResult(_ measurementHeaderResult: MeasurementHeaderResult) {
         let context = persistenceController.container.viewContext
-//        let fetchRequest = Measurement.fetchRequest()
-//        fetchRequest.predicate = NSPredicate(format: "objectHash == %ld", measurementHeaderResult.objectHash, #keyPath(Measurement.objectHash))
-//
-//        guard let objects = try? context.fetch(fetchRequest) else {
-//            print("Core Data failed to fetch hash")
-//            //            guard let error = error as? Error else {
-//            //                print("Core Data failed to fetch hash")
-//            //                return
-//            //            }
-//            //            print("Core Data failed to fetch: \(error.localizedDescription)")
-//            // TODO: add sentry
-//            // SentrySDK.capture(error: error)
-//            return
-//        }
+        let fetchRequest = Measurement.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "headerHash == %ld", measurementHeaderResult.hashValue, #keyPath(Measurement.headerHash))
         
-//        if objects.isEmpty {
+        guard let objects = try? context.fetch(fetchRequest) else {
+            print("Core Data failed to fetch hash")
+            guard let error = error as? Error else {
+                print("Core Data failed to fetch hash")
+                return
+            }
+            print("Core Data failed to fetch: \(error.localizedDescription)")
+            // TODO: add sentry
+            // SentrySDK.capture(error: error)
+            return
+        }
+        
+        if objects.isEmpty {
             gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16(self.currentMeasurement), completion: { measurementResult in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     self.gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
-                        self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, objectHash: measurementHeaderResult.objectHash, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
+                        self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, measurementHeader: measurementHeaderResult, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
                         print("SavingMeasurement")
                         self.getMeasurentHeader()
                     }, оnFailure: self.onRequestFail)
                 }
             }, оnFailure: onRequestFail)
-//        } else {
-//            getMeasurentHeader()
-//            print("Skipping already synchronized objects")
-//        }
+        } else {
+            getMeasurentHeader()
+            print("Skipping already synchronized objects")
+        }
     }
     
     // MARK: - callbacks for Gemocard SDK usage
     
-    func onProgressUpdate(_ progress: Float) {
-        DispatchQueue.main.async {
-            self.progress = progress
-        }
-    }
-    
     func gemocardSDKcompletion(code: CompletionCodes) {
         DispatchQueue.main.async {
             print("Updated status code: \(code)")
-            
             switch code {
-                
             case .bluetoothIsOff:
-                break;
+                self.navigationBarTitleStatus = LocalizedStringKey("Waiting Bluetooth...").stringValue()
+                self.isBluetoothOn = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    if !self.isBluetoothOn {
+                        self.showBluetoothIsOffWarning = true
+                    }
+                }
             case .bluetoothIsOn:
-                break;
+                self.showBluetoothIsOffWarning = false
+                if !self.isBluetoothOn {
+                    self.isBluetoothOn = true
+                    self.discover()
+                }
             case .periferalIsNotFromThisQueue:
-                break;
+                self.throwAlert(ErrorAlerts.invalidPeriferal, .error)
             case .disconnected:
+                self.fetchingDataWithGemocard = false
                 self.isConnected = false
                 self.connectingPeripheral = nil
+                self.devices = []
+                self.throwAlert(ErrorAlerts.disconnected, .warning)
+                self.discover()
             case .failedToDiscoverServiceError:
-                break;
+                self.throwAlert(ErrorAlerts.serviceNotFound, .error)
             case .periferalIsNotReady:
-                break;
+                self.throwAlert(ErrorAlerts.deviceIsNotReady, .error)
             case .connected:
+                HapticFeedbackController.shared.play(.light)
+                self.showSelectDevicesInfo = false
                 self.isConnected = true
                 self.getDeviceStatus()
+                self.navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
             case .invalidCrc:
                 break;
             }
@@ -140,10 +171,17 @@ final class GemocardKit: ObservableObject {
     }
     
     func discover() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            if !self.isConnected {
+                self.showSelectDevicesInfo = true
+            }
+        }
+        navigationBarTitleStatus = LocalizedStringKey("Search...").stringValue()
         gemocardSDK.discover()
     }
     
     func connect(peripheral: CBPeripheral) {
+        navigationBarTitleStatus = LocalizedStringKey("Connecting...").stringValue()
         if UserDefaults.saveUUID {
             UserDefaults.savedGemocardUUID = peripheral.identifier.uuidString
         }

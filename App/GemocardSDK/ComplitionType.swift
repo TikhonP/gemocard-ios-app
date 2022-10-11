@@ -52,10 +52,6 @@ typealias GetDateAndTimeFromDeviceCompletion = (_ date: Date?) -> Void
 /// - Parameter measurementsCount: number of measuremnts
 typealias GetNumberOfMeasurementsInDeviceMemoryCompletion = (_ measurementsCount: Int) -> Void
 
-/// Get data completion
-/// - Parameter data: array of packets
-typealias GetDataCompletion = (_ data: [GetDataModel]) -> Void
-
 /// Get header results N previous measurent
 /// - Parameter measurementHeaderResult: measurement headers results struct
 typealias GetHeaderResultsNumberOfPreviousMeasurementCompletion = (_ measurementHeaderResult: MeasurementHeaderResult) -> Void

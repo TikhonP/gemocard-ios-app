@@ -18,6 +18,15 @@
 		436ADB9D28F0819F003361E7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9C28F0819F003361E7 /* Models.swift */; };
 		43A1846E28F45CA700AAA915 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1846D28F45CA700AAA915 /* PersistenceController.swift */; };
 		43A1847128F45D2400AAA915 /* Gemocard.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 43A1846F28F45D2400AAA915 /* Gemocard.xcdatamodeld */; };
+		43A1847328F5E41000AAA915 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1847228F5E41000AAA915 /* SettingsView.swift */; };
+		43A1847528F5E42200AAA915 /* ConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1847428F5E42200AAA915 /* ConnectView.swift */; };
+		43A1847728F5E5EB00AAA915 /* LocalizedString+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1847628F5E5EB00AAA915 /* LocalizedString+.swift */; };
+		43A1847928F5E6EB00AAA915 /* View+NavigationBarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1847828F5E6EB00AAA915 /* View+NavigationBarTitle.swift */; };
+		43A1847C28F5E8D200AAA915 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 43A1847E28F5E8D200AAA915 /* Localizable.strings */; };
+		43A1848028F5E94300AAA915 /* HapticFeedbackController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1847F28F5E94300AAA915 /* HapticFeedbackController.swift */; };
+		43A1848228F5E95D00AAA915 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1848128F5E95D00AAA915 /* Alerts.swift */; };
+		43A1848428F5ECD800AAA915 /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1848328F5ECD800AAA915 /* RecordView.swift */; };
+		43A1848628F5ED0700AAA915 /* RecordLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1848528F5ED0700AAA915 /* RecordLabel.swift */; };
 		43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */; };
 		43E0E66E28EDB2360010A363 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E66D28EDB2360010A363 /* MainView.swift */; };
 		43E0E67128EDD52D0010A363 /* DataSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E67028EDD52D0010A363 /* DataSerializer.swift */; };
@@ -39,6 +48,15 @@
 		436ADB9C28F0819F003361E7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		43A1846D28F45CA700AAA915 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		43A1847028F45D2400AAA915 /* Gemocard.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Gemocard.xcdatamodel; sourceTree = "<group>"; };
+		43A1847228F5E41000AAA915 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		43A1847428F5E42200AAA915 /* ConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
+		43A1847628F5E5EB00AAA915 /* LocalizedString+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizedString+.swift"; sourceTree = "<group>"; };
+		43A1847828F5E6EB00AAA915 /* View+NavigationBarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+NavigationBarTitle.swift"; sourceTree = "<group>"; };
+		43A1847D28F5E8D200AAA915 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		43A1847F28F5E94300AAA915 /* HapticFeedbackController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackController.swift; sourceTree = "<group>"; };
+		43A1848128F5E95D00AAA915 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
+		43A1848328F5ECD800AAA915 /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
+		43A1848528F5ED0700AAA915 /* RecordLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordLabel.swift; sourceTree = "<group>"; };
 		43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemocardKit.swift; sourceTree = "<group>"; };
 		43E0E66D28EDB2360010A363 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		43E0E66F28EDB4360010A363 /* Medsenger-Gemocard-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Medsenger-Gemocard-Info.plist"; sourceTree = "<group>"; };
@@ -81,15 +99,15 @@
 		434EE0A728EC49B500591830 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				43A1846C28F45C9400AAA915 /* Data */,
+				43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */,
+				43A1848728F5EDB400AAA915 /* Views */,
+				43A1846C28F45C9400AAA915 /* CoreData */,
 				434EE0B728EC4BC600591830 /* Utils */,
 				434EE0B628EC4BAD00591830 /* GemocardSDK */,
 				434EE0A828EC49B500591830 /* App.swift */,
-				434EE0AA28EC49B500591830 /* RootView.swift */,
 				434EE0AC28EC49B700591830 /* Assets.xcassets */,
 				434EE0AE28EC49B700591830 /* Preview Content */,
-				43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */,
-				43E0E66D28EDB2360010A363 /* MainView.swift */,
+				43A1847E28F5E8D200AAA915 /* Localizable.strings */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -121,17 +139,34 @@
 			children = (
 				434EE0B828EC4BDC00591830 /* UserDefaults+AppPrefs.swift */,
 				43E0E67228EDDA4F0010A363 /* Data+.swift */,
+				43A1847628F5E5EB00AAA915 /* LocalizedString+.swift */,
+				43A1847828F5E6EB00AAA915 /* View+NavigationBarTitle.swift */,
+				43A1847F28F5E94300AAA915 /* HapticFeedbackController.swift */,
+				43A1848128F5E95D00AAA915 /* Alerts.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		43A1846C28F45C9400AAA915 /* Data */ = {
+		43A1846C28F45C9400AAA915 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
 				43A1846D28F45CA700AAA915 /* PersistenceController.swift */,
 				43A1846F28F45D2400AAA915 /* Gemocard.xcdatamodeld */,
 			);
-			path = Data;
+			path = CoreData;
+			sourceTree = "<group>";
+		};
+		43A1848728F5EDB400AAA915 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				434EE0AA28EC49B500591830 /* RootView.swift */,
+				43E0E66D28EDB2360010A363 /* MainView.swift */,
+				43A1847228F5E41000AAA915 /* SettingsView.swift */,
+				43A1847428F5E42200AAA915 /* ConnectView.swift */,
+				43A1848328F5ECD800AAA915 /* RecordView.swift */,
+				43A1848528F5ED0700AAA915 /* RecordLabel.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -194,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				434EE0B028EC49B700591830 /* Preview Assets.xcassets in Resources */,
+				43A1847C28F5E8D200AAA915 /* Localizable.strings in Resources */,
 				434EE0AD28EC49B700591830 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -208,22 +244,41 @@
 				436ADB9928F06F3A003361E7 /* GetECGController.swift in Sources */,
 				43A1846E28F45CA700AAA915 /* PersistenceController.swift in Sources */,
 				43E0E67828EEDC410010A363 /* GemocardDeviceController.swift in Sources */,
+				43A1848428F5ECD800AAA915 /* RecordView.swift in Sources */,
 				43E0E67A28EF35DD0010A363 /* ComplitionType.swift in Sources */,
 				43A1847128F45D2400AAA915 /* Gemocard.xcdatamodeld in Sources */,
 				434EE0BB28EC4C8600591830 /* GemocardSDK.swift in Sources */,
 				43E0E66E28EDB2360010A363 /* MainView.swift in Sources */,
 				43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */,
+				43A1847328F5E41000AAA915 /* SettingsView.swift in Sources */,
 				436ADB9D28F0819F003361E7 /* Models.swift in Sources */,
 				436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */,
+				43A1847528F5E42200AAA915 /* ConnectView.swift in Sources */,
 				43E0E67328EDDA4F0010A363 /* Data+.swift in Sources */,
+				43A1847928F5E6EB00AAA915 /* View+NavigationBarTitle.swift in Sources */,
 				434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */,
+				43A1848028F5E94300AAA915 /* HapticFeedbackController.swift in Sources */,
+				43A1847728F5E5EB00AAA915 /* LocalizedString+.swift in Sources */,
 				434EE0AB28EC49B500591830 /* RootView.swift in Sources */,
 				434EE0A928EC49B500591830 /* App.swift in Sources */,
+				43A1848228F5E95D00AAA915 /* Alerts.swift in Sources */,
+				43A1848628F5ED0700AAA915 /* RecordLabel.swift in Sources */,
 				43E0E67128EDD52D0010A363 /* DataSerializer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		43A1847E28F5E8D200AAA915 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43A1847D28F5E8D200AAA915 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		434EE0B128EC49B700591830 /* Debug */ = {

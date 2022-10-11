@@ -8,31 +8,6 @@
 
 import Foundation
 
-struct BrokenElectrodesAndPacemaker: OptionSet {
-    let rawValue: UInt8
-    
-    static let brokenR = Self(rawValue: 1 << 0)
-    static let brokenF = Self(rawValue: 1 << 1)
-    static let brokenC1 = Self(rawValue: 1 << 2)
-    static let brokenL = Self(rawValue: 1 << 3)
-    static let pacemakerDetection = Self(rawValue: 1 << 4)
-}
-
-struct GetDataModel {
-    let exchangeMode: ExchangeMode
-    
-    let ECG1: Int
-    let ECG2: Int
-    let ECG4: Int
-    
-    let brokenElectrodesAndPacemaker: BrokenElectrodesAndPacemaker
-    
-    let ECGpressureWaveforms: Int
-    let ECGphotoplethysmogram: Int
-    
-    let packetNumber: Int
-}
-
 /// Controller for managing incoming data in exchange mode
 class GetECGController {
     

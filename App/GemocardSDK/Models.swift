@@ -8,6 +8,16 @@
 
 import Foundation
 
+struct BrokenElectrodesAndPacemaker: OptionSet {
+    let rawValue: UInt8
+    
+    static let brokenR = Self(rawValue: 1 << 0)
+    static let brokenF = Self(rawValue: 1 << 1)
+    static let brokenC1 = Self(rawValue: 1 << 2)
+    static let brokenL = Self(rawValue: 1 << 3)
+    static let pacemakerDetection = Self(rawValue: 1 << 4)
+}
+
 /// статус прибора
 enum DeviceStatus: UInt8 {
     /// ожидание (готов к работе)
@@ -67,20 +77,20 @@ enum SampleRate: UInt8 {
     case unknown = 0x00
 }
 
-struct MeasurementHeaderResult {
+struct MeasurementHeaderResult: Hashable {
     let deviceOperatingMode: DeviceOperatingMode
     let measChan: MeasChan
     
-    let maxMeasurementLength: Int
+    let maxMeasurementLength: Int16
     
     let sampleRate: SampleRate
     
-    let arterialPressureWavefromNumber: Int
-    let userId: Int
+    let arterialPressureWavefromNumber: Int16
+    let userId: Int16
     
     /// Указатель на начало кардиограммы в памяти. Нужно для контроля перезаписи устаревших сигналов.
     /// При перекрывающихся адресах, актуальной кардиограммой считается та, у которой N меньше.
-    let pointerToBeginningOfCardiogramInMemory: Int
+    let pointerToBeginningOfCardiogramInMemory: Int32
     
     let year: Int
     let month: Int
@@ -93,11 +103,11 @@ struct MeasurementHeaderResult {
         let measurementResult = MeasurementHeaderResult(
             deviceOperatingMode: DeviceOperatingMode(rawValue: bytes[2]) ?? .unknown,
             measChan: MeasChan(rawValue: bytes[3]) ?? .unknown,
-            maxMeasurementLength: Int(bytes[4]),
+            maxMeasurementLength: Int16(bytes[4]),
             sampleRate: SampleRate(rawValue: bytes[5]) ?? .unknown,
-            arterialPressureWavefromNumber: Int(bytes[6]),
-            userId: Int(bytes[7]),
-            pointerToBeginningOfCardiogramInMemory: Int(DataSerializer.twoBytesToInt(MSBs: bytes[8], LSBs: bytes[9])),
+            arterialPressureWavefromNumber: Int16(bytes[6]),
+            userId: Int16(bytes[7]),
+            pointerToBeginningOfCardiogramInMemory: Int32(DataSerializer.twoBytesToInt(MSBs: bytes[8], LSBs: bytes[9])),
             year: Int(bytes[10]), month: Int(bytes[11]), day: Int(bytes[12]), hour: Int(bytes[13]), minute: Int(bytes[14]), second: Int(bytes[15]))
         return measurementResult
     }
@@ -107,15 +117,11 @@ struct MeasurementHeaderResult {
         let dateComponents = DateComponents(timeZone: TimeZone.current, year: year, month: month, day: day, hour: hour, minute: minute, second: second)
         return calendar.date(from: dateComponents)!
     }
-    
-    var objectHash: Int {
-        return Int(deviceOperatingMode.rawValue) + Int(measChan.rawValue) + maxMeasurementLength + Int(sampleRate.rawValue) + arterialPressureWavefromNumber + userId + pointerToBeginningOfCardiogramInMemory + year + month + day + hour + minute + second
-    }
 }
 
 /// Флаг завершения серии изм
 enum ChangeSeriesEndFlag: UInt8 {
-
+    
     /// не является ЗЗС
     case notZZC = 0x00
     
