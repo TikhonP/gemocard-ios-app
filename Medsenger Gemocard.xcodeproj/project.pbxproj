@@ -16,6 +16,8 @@
 		436ADB9928F06F3A003361E7 /* GetECGController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9828F06F3A003361E7 /* GetECGController.swift */; };
 		436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */; };
 		436ADB9D28F0819F003361E7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9C28F0819F003361E7 /* Models.swift */; };
+		43A1846E28F45CA700AAA915 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1846D28F45CA700AAA915 /* PersistenceController.swift */; };
+		43A1847128F45D2400AAA915 /* Gemocard.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 43A1846F28F45D2400AAA915 /* Gemocard.xcdatamodeld */; };
 		43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */; };
 		43E0E66E28EDB2360010A363 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E66D28EDB2360010A363 /* MainView.swift */; };
 		43E0E67128EDD52D0010A363 /* DataSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E0E67028EDD52D0010A363 /* DataSerializer.swift */; };
@@ -35,6 +37,8 @@
 		436ADB9828F06F3A003361E7 /* GetECGController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetECGController.swift; sourceTree = "<group>"; };
 		436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncQueue.swift; sourceTree = "<group>"; };
 		436ADB9C28F0819F003361E7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		43A1846D28F45CA700AAA915 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		43A1847028F45D2400AAA915 /* Gemocard.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Gemocard.xcdatamodel; sourceTree = "<group>"; };
 		43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemocardKit.swift; sourceTree = "<group>"; };
 		43E0E66D28EDB2360010A363 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		43E0E66F28EDB4360010A363 /* Medsenger-Gemocard-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Medsenger-Gemocard-Info.plist"; sourceTree = "<group>"; };
@@ -77,6 +81,7 @@
 		434EE0A728EC49B500591830 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				43A1846C28F45C9400AAA915 /* Data */,
 				434EE0B728EC4BC600591830 /* Utils */,
 				434EE0B628EC4BAD00591830 /* GemocardSDK */,
 				434EE0A828EC49B500591830 /* App.swift */,
@@ -118,6 +123,15 @@
 				43E0E67228EDDA4F0010A363 /* Data+.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		43A1846C28F45C9400AAA915 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				43A1846D28F45CA700AAA915 /* PersistenceController.swift */,
+				43A1846F28F45D2400AAA915 /* Gemocard.xcdatamodeld */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,8 +206,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				436ADB9928F06F3A003361E7 /* GetECGController.swift in Sources */,
+				43A1846E28F45CA700AAA915 /* PersistenceController.swift in Sources */,
 				43E0E67828EEDC410010A363 /* GemocardDeviceController.swift in Sources */,
 				43E0E67A28EF35DD0010A363 /* ComplitionType.swift in Sources */,
+				43A1847128F45D2400AAA915 /* Gemocard.xcdatamodeld in Sources */,
 				434EE0BB28EC4C8600591830 /* GemocardSDK.swift in Sources */,
 				43E0E66E28EDB2360010A363 /* MainView.swift in Sources */,
 				43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */,
@@ -414,6 +430,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		43A1846F28F45D2400AAA915 /* Gemocard.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				43A1847028F45D2400AAA915 /* Gemocard.xcdatamodel */,
+			);
+			currentVersion = 43A1847028F45D2400AAA915 /* Gemocard.xcdatamodel */;
+			path = Gemocard.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 434EE09D28EC49B500591830 /* Project object */;
 }

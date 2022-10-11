@@ -10,6 +10,7 @@ import SwiftUI
 
 @main
 struct Medsenger_GemocardApp: App {
+    let persistenceController = PersistenceController.shared
     
     init() {
         UserDefaults.registerDefaultValues()
@@ -18,6 +19,7 @@ struct Medsenger_GemocardApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }

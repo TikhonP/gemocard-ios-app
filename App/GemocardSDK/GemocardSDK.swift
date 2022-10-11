@@ -124,22 +124,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
             gemocardDeviceController?.startMeasurementForUser(user: user)
         }
     }
-    
-    public func getData(
-        ECG1: Bool = false,
-        ECG2: Bool = false,
-        ECG4: Bool = false,
-        pressureWaveforms: Bool = false,
-        completion: @escaping GetDataCompletion,
-        оnFailure: @escaping OnFailure
-    ) {
-        checkIfPeripheralReady() {
-            gemocardDeviceController?.startingExchange(
-                ECG1: ECG1, ECG2: ECG2, ECG4: ECG4, pressureWaveforms: pressureWaveforms, completion: completion, оnFailure: оnFailure
-            )
-        }
-    }
-    
+
     public func setDateTime() {
         checkIfPeripheralReady() {
             gemocardDeviceController?.setDateTime()
@@ -167,6 +152,12 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
             gemocardDeviceController?.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
+        }
+    }
+    
+    public func getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
+        checkIfPeripheralReady() {
+            gemocardDeviceController?.getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
         }
     }
     
@@ -273,10 +264,5 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         print("Reciving...", bytes)
         
         gemocardDeviceController!.onDataReceived(data: bytes)
-        
-        //        if DataSerializer.crc(bytes) != bytes[bytes.count - 1] {
-        //            completion(.invalidCrc)
-        //        }
-        
     }
 }

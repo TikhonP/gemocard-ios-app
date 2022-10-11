@@ -91,60 +91,60 @@ class GemocardDeviceController {
         case .getDeviceStatus:
             stopTimer()
             guard validateCRC(data) else {
-                completionStorage.оnFailure(.invalidCrc)
                 status = .unknown
+                completionStorage.оnFailure(.invalidCrc)
                 return
             }
             let result = DataSerializer.deviceStatusDeserializer(bytes: data)
-            completionStorage.getDeviceStatus(result.deviceStatus, result.deviceOperatingMode, result.cuffPressure)
             status = .unknown
+            completionStorage.getDeviceStatus(result.deviceStatus, result.deviceOperatingMode, result.cuffPressure)
         case .getDateAndTimeFromDevice:
             stopTimer()
             guard validateCRC(data) else {
-                completionStorage.оnFailure(.invalidCrc)
                 status = .unknown
+                completionStorage.оnFailure(.invalidCrc)
                 return
             }
             let date = DataSerializer.dateAndTimeFromDeviceDeserializer(bytes: data)
-            completionStorage.getDateAndTimeFromDevice(date)
             status = .unknown
+            completionStorage.getDateAndTimeFromDevice(date)
         case .getNumberOfMeasurementsInDeviceMemory:
             stopTimer()
             guard validateCRC(data) else {
-                completionStorage.оnFailure(.invalidCrc)
                 status = .unknown
+                completionStorage.оnFailure(.invalidCrc)
                 return
             }
             let measurementsCount = DataSerializer.numberOfMeasurementsInDeviceMemoryDeserializer(bytes: data)
-            completionStorage.getNumberOfMeasurementsInDeviceMemory(Int(measurementsCount))
             status = .unknown
+            completionStorage.getNumberOfMeasurementsInDeviceMemory(Int(measurementsCount))
         case .getHeaderResultsNumberOfPreviousMeasurement:
             stopTimer()
             guard validateCRC(data) else {
-                completionStorage.оnFailure(.invalidCrc)
                 status = .unknown
+                completionStorage.оnFailure(.invalidCrc)
                 return
             }
             let measurementHeaderResult = DataSerializer.resultsHeaderNumberOfPreviousMeasurementDeserializer(bytes: data)
-            completionStorage.getHeaderResultsNumberOfPreviousMeasurement(measurementHeaderResult)
             status = .unknown
+            completionStorage.getHeaderResultsNumberOfPreviousMeasurement(measurementHeaderResult)
         case .getResultsNumberOfPreviousMeasurement:
             guard let getDataStorage = dataStorage else {
                 dataStorage = data
                 startTimer()
-                break
+                return
             }
             let finalData = getDataStorage + data
             stopTimer()
             guard validateCRC(finalData) else {
-                completionStorage.оnFailure(.invalidCrc)
                 status = .unknown
+                completionStorage.оnFailure(.invalidCrc)
                 return
             }
             let measurementResult = DataSerializer.resultsNumberOfPreviousMeasurementDeserializer(bytes: finalData)
-            completionStorage.getResultsNumberOfPreviousMeasurement(measurementResult)
-            dataStorage = nil
             status = .unknown
+            dataStorage = nil
+            completionStorage.getResultsNumberOfPreviousMeasurement(measurementResult)
         case .getECG:
             getECGController?.onDataReceived(data: data)
         }
@@ -203,7 +203,7 @@ class GemocardDeviceController {
         startTimer()
     }
     
-    public func queryResultsNumberOfPreviousECG(numberOfPreviousMeasurement: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
+    public func getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
         status = .getECG
         writeValueCallback(DataSerializer.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousMeasurement))
         getECGController = GetECGController(resetExchangeCallback: resetExchange, comletion: completion, оnFailure: оnFailure)

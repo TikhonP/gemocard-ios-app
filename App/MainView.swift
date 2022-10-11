@@ -61,6 +61,7 @@ struct MainView: View {
                     }) {
                         Text("Загрузить N измерение")
                     }
+                    Button(action: gemocardKit.getResultsNumberOfPreviousECG) { Text("Загрузить N ЭКГ") }
                 }
             }
         }

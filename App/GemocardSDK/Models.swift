@@ -107,6 +107,10 @@ struct MeasurementHeaderResult {
         let dateComponents = DateComponents(timeZone: TimeZone.current, year: year, month: month, day: day, hour: hour, minute: minute, second: second)
         return calendar.date(from: dateComponents)!
     }
+    
+    var objectHash: Int {
+        return Int(deviceOperatingMode.rawValue) + Int(measChan.rawValue) + maxMeasurementLength + Int(sampleRate.rawValue) + arterialPressureWavefromNumber + userId + pointerToBeginningOfCardiogramInMemory + year + month + day + hour + minute + second
+    }
 }
 
 /// Флаг завершения серии изм
@@ -139,32 +143,32 @@ struct MeasurementResult {
     let measMode: Bool
     
     /// Period: период измерений в [¼ мин], от 6 до 40, по умолчанию 8
-    let period: Int
+    let period: Int16
     
     /// изначально запланированное число изм. в серии
-    let originallyPlannedNumberOfRevisionsInSeries: Int
+    let originallyPlannedNumberOfRevisionsInSeries: Int16
     
     /// номер успешного изм. в серии (число успешных изм. в серии для ЗЗС)
-    let numberOfSuccessfulMeasurment: Int
+    let numberOfSuccessfulMeasurment: Int16
     
     let changeSeriesEndFlag: ChangeSeriesEndFlag
     
     /// ID серии измерений
-    let idSeriesOfMeasurement: Int
+    let idSeriesOfMeasurement: Int16
     
     /// номер пользователя
-    let userId: Int
+    let userId: Int16
     
-    let systolicBloodPressure: Int
-    let diastolicBloodPressure: Int
-    let pulse: Int
+    let systolicBloodPressure: Int16
+    let diastolicBloodPressure: Int16
+    let pulse: Int16
     
     let arrhythmiaStatus: ArrhythmiaStatus
     
     /// Число/процент нарушений ритма:
     /// - если статус аритмии "однократное нарушение ритма" или "многократные нарушения ритма", то число нарушений ритма
     /// - если статус аритмии "продолжительная аритмия", то процент нарушений ритма
-    let rhythmDisturbances: Int
+    let rhythmDisturbances: Int16
     
     let year: Int
     let month: Int
@@ -176,17 +180,17 @@ struct MeasurementResult {
     static func deserialize(bytes: [UInt8]) -> MeasurementResult {
         let measurementResult = MeasurementResult(
             measMode: ((bytes[2] >> 7) != 0),
-            period: Int(bytes[2] & 0x0F),
-            originallyPlannedNumberOfRevisionsInSeries: Int(bytes[3]),
-            numberOfSuccessfulMeasurment: Int(bytes[4]),
+            period: Int16(bytes[2] & 0x0F),
+            originallyPlannedNumberOfRevisionsInSeries: Int16(bytes[3]),
+            numberOfSuccessfulMeasurment: Int16(bytes[4]),
             changeSeriesEndFlag: ChangeSeriesEndFlag(rawValue: bytes[6]) ?? .unknown,
-            idSeriesOfMeasurement: Int(bytes[7]),
-            userId: Int(bytes[8]),
-            systolicBloodPressure: Int(DataSerializer.twoBytesToInt(MSBs: bytes[9], LSBs: bytes[10])),
-            diastolicBloodPressure: Int(DataSerializer.twoBytesToInt(MSBs: bytes[11], LSBs: bytes[12])),
-            pulse: Int(bytes[13]),
+            idSeriesOfMeasurement: Int16(bytes[7]),
+            userId: Int16(bytes[8]),
+            systolicBloodPressure: Int16(DataSerializer.twoBytesToInt(MSBs: bytes[9], LSBs: bytes[10])),
+            diastolicBloodPressure: Int16(DataSerializer.twoBytesToInt(MSBs: bytes[11], LSBs: bytes[12])),
+            pulse: Int16(bytes[13]),
             arrhythmiaStatus: ArrhythmiaStatus(rawValue: bytes[14]) ?? .unknown,
-            rhythmDisturbances: Int(bytes[15]),
+            rhythmDisturbances: Int16(bytes[15]),
             year: Int(bytes[16]), month: Int(bytes[17]), day: Int(bytes[18]), hour: Int(bytes[19]), minute: Int(bytes[20]), second: Int(bytes[21]))
         return measurementResult
     }

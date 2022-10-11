@@ -48,6 +48,9 @@ class GetECGController {
     /// Buffer for holding specific data pieces from ``incomingDataQueue`` and process it
     private var dataStorage = [UInt8](repeating: 0, count: 128)
     
+    private var isProcessing = false
+    private var exit = false
+    
     init(
         resetExchangeCallback: @escaping () -> Void,
         comletion: @escaping GetECGCompletion,
@@ -56,21 +59,32 @@ class GetECGController {
         self.resetExchangeCallback = resetExchangeCallback
         self.comletion = comletion
         self.оnFailure = оnFailure
-        startTimer()
         Task {
             decodeTask()
         }
     }
     
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-            self.оnFailure(.timeout)
-            self.resetExchangeCallback()
-        })
+        DispatchQueue.main.async {
+            self.isProcessing = true
+            if let timer = self.timer {
+                timer.invalidate()
+                self.timer = nil
+            }
+            self.timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { timer in
+                DispatchQueue.main.async {
+                    if self.isProcessing {
+                        self.exit = true
+                        self.оnFailure(.timeout)
+                        self.resetExchangeCallback()
+                    }
+                }
+            })
+        }
     }
     
     private func stopTimer() {
-        timer?.invalidate()
+        self.isProcessing = false
     }
     
     /// Copy data from ``incomingDataQueue`` to array from specific index and with given length
@@ -81,7 +95,7 @@ class GetECGController {
     private func copyDataToDataStorage(copyTo: inout [UInt8], from: Int, length: Int) {
         var from = from, length = length, i = from
         
-        while (i < (from + length)) {
+        while (i < (from + length) && !exit) {
             if (!incomingDataQueue.isEmpty) {
                 guard let value = incomingDataQueue.dequeue() else { continue }
                 copyTo[i] = value
@@ -90,17 +104,33 @@ class GetECGController {
         }
     }
     
+    private func decodeFirstPacket(data: [UInt8]) -> Int {
+        let packetsCount = (UInt64(data[2]) << (8 * 5)) | (UInt64(data[3]) << (8 * 4)) | (UInt64(data[4]) << (8 * 3)) | (UInt64(data[5]) << (8 * 2)) | (UInt64(data[6]) << (8 * 1)) | UInt64(data[7])
+        print("Packet count: \(packetsCount)")
+        return Int(packetsCount)
+    }
+    
     private func decodeTask() {
-        while true {
-            copyDataToDataStorage(copyTo: &dataStorage, from: 0, length: 2)
-            let responselength = Int(dataStorage[1] - 2)
-            print(responselength)
-            copyDataToDataStorage(copyTo: &dataStorage, from: 2, length: responselength)
-            let data = Array(dataStorage.prefix(responselength + 1))
-            print(data)
+        copyDataToDataStorage(copyTo: &dataStorage, from: 0, length: 13)
+        let data = Array(dataStorage.prefix(13))
+        print("First packet: \(data)")
+        if DataSerializer.crc(data) != data[data.count - 1] {
+//            stopTimer()
+            оnFailure(.invalidCrc)
+            resetExchangeCallback()
+            return
+        }
+        let packetsCount = decodeFirstPacket(data: data)
+        for i in 0...packetsCount {
+//            startTimer()
+            copyDataToDataStorage(copyTo: &dataStorage, from: 0, length: 101)
+            let data = Array(dataStorage.prefix(101))
+            print("Packet: \(i), Data: \(data), Data count: \(data.count)")
             if DataSerializer.crc(data) != data[data.count - 1] {
+//                stopTimer()
                 оnFailure(.invalidCrc)
-                break
+                resetExchangeCallback()
+                return
             }
         }
     }
