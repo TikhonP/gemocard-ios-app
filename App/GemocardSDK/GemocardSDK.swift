@@ -155,9 +155,15 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
     }
     
-    public func getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
+    public func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController?.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousECG, completion: completion, оnFailure: оnFailure)
+        }
+    }
+    
+    public func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(completion: @escaping RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion, onFailure: @escaping OnFailure) {
+        checkIfPeripheralReady() {
+            gemocardDeviceController?.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(completion: completion, onFailure: onFailure)
         }
     }
     
@@ -261,7 +267,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
         
         let bytes = data.bytes
-        print("Reciving...", bytes)
+//        print("Receiving...", bytes)
         
         gemocardDeviceController!.onDataReceived(data: bytes)
     }

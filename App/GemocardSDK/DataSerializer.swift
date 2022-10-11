@@ -292,7 +292,7 @@ class DataSerializer {
     /// - Returns: serialized Data object
     class func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, packetNumber: UInt16) -> Data {
         let packetNumberBytes = DataSerializer.intToTwoBytes(packetNumber)
-        let bytes: [UInt8] = [0xAA, 0x04, 0x67, numberOfPreviousECG, packetNumberBytes.MSBs, packetNumberBytes.LSBs, 0]
+        let bytes: [UInt8] = [0xAA, 0x06, 0x67, numberOfPreviousECG, packetNumberBytes.MSBs, packetNumberBytes.LSBs, 0]
         return DataSerializer.addCrc(bytes)
     }
     
@@ -309,5 +309,12 @@ class DataSerializer {
     class func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG() -> Data {
         let bytes: [UInt8] = [0xAA, 0x03, 0x69, 0]
         return DataSerializer.addCrc(bytes)
+    }
+    
+    /// Ответ на команду, которая возвращает установленное значение кол-ва передаваемых пакетов в ответ на 6-ти байтную команду
+    /// - Parameter bytes: byte array
+    /// - Returns: packet count
+    class func responseForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGDeserializer(bytes: [UInt8]) -> UInt8 {
+        return bytes[2]
     }
 }

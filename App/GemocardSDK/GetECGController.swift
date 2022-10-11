@@ -39,6 +39,8 @@ class GetECGController {
     private let resetExchangeCallback: () -> Void
     private let comletion: GetECGCompletion
     private let оnFailure: OnFailure
+    private let numberOfPreviousECG: UInt8
+    private let writeValueCallback: WriteValueCallback
     
     private var timer: Timer?
     
@@ -46,21 +48,28 @@ class GetECGController {
     private var incomingDataQueue = AsyncQueue<UInt8>()
     
     /// Buffer for holding specific data pieces from ``incomingDataQueue`` and process it
-    private var dataStorage = [UInt8](repeating: 0, count: 128)
+    private var dataStorage = [UInt8](repeating: 0, count: 256)
     
     private var isProcessing = false
     private var exit = false
     
+    private var packet: [UInt8] = []
+    private var packetCount: Int = 0
+    
     init(
+        numberOfPreviousECG: UInt8,
         resetExchangeCallback: @escaping () -> Void,
+        writeValueCallback: @escaping WriteValueCallback,
         comletion: @escaping GetECGCompletion,
         оnFailure: @escaping OnFailure
     ) {
+        self.numberOfPreviousECG = numberOfPreviousECG
         self.resetExchangeCallback = resetExchangeCallback
+        self.writeValueCallback = writeValueCallback
         self.comletion = comletion
         self.оnFailure = оnFailure
         Task {
-            decodeTask()
+            mainTask()
         }
     }
     
@@ -104,35 +113,74 @@ class GetECGController {
         }
     }
     
-    private func decodeFirstPacket(data: [UInt8]) -> Int {
-        let packetsCount = (UInt64(data[2]) << (8 * 5)) | (UInt64(data[3]) << (8 * 4)) | (UInt64(data[4]) << (8 * 3)) | (UInt64(data[5]) << (8 * 2)) | (UInt64(data[6]) << (8 * 1)) | UInt64(data[7])
-        print("Packet count: \(packetsCount)")
-        return Int(packetsCount)
+    private func decodeFirstPacket(data: [UInt8]) -> UInt16 {
+        let packetsCount = DataSerializer.twoBytesToInt(MSBs: data[2], LSBs: data[3])
+        let lastPacketSize = DataSerializer.twoBytesToInt(MSBs: data[4], LSBs: data[5])
+        print("Packet count: \(packetsCount), last packet size: \(lastPacketSize)")
+        return packetsCount
     }
     
-    private func decodeTask() {
+    private func threeBytesToInt(MSBs: UInt8, MidBs: UInt8, LSBs: UInt8) -> UInt32 {
+        return (UInt32(MSBs) << (8 * 2)) | (UInt32(MidBs) << 8) | UInt32(LSBs)
+    }
+    
+    private func process98bytePacket(data: [UInt8]) -> [UInt32] {
+        var values: [UInt32] = []
+        for b in data {
+            packet.append(b)
+            if packet.count == 4 {
+                packetCount += 1
+                let value = threeBytesToInt(MSBs: packet[0], MidBs: packet[1], LSBs: packet[2])
+                let status = BrokenElectrodesAndPacemaker(rawValue: packet[3])
+                print("Value: \(value), status: \(status)")
+                values.append(value)
+                packet = []
+            }
+        }
+        return values
+    }
+    
+    private func mainTask() {
+        
+        
+        // Get first packet
+        writeValueCallback(DataSerializer.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousECG, packetNumber: 65535))
+//        while incomingDataQueue.getlength() != 13 { }
+//        let data = incomingDataQueue.getElementsAndClear()
         copyDataToDataStorage(copyTo: &dataStorage, from: 0, length: 13)
         let data = Array(dataStorage.prefix(13))
+        
         print("First packet: \(data)")
         if DataSerializer.crc(data) != data[data.count - 1] {
-//            stopTimer()
             оnFailure(.invalidCrc)
             resetExchangeCallback()
             return
         }
         let packetsCount = decodeFirstPacket(data: data)
-        for i in 0...packetsCount {
-//            startTimer()
+        
+        for i: UInt16 in 1...packetsCount {
+            writeValueCallback(DataSerializer.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousECG, packetNumber: i))
             copyDataToDataStorage(copyTo: &dataStorage, from: 0, length: 101)
             let data = Array(dataStorage.prefix(101))
-            print("Packet: \(i), Data: \(data), Data count: \(data.count)")
+//            print("Packet: \(i), Data: \(data), Data count: \(data.count)")
+            
+//            print("Packet \(i)")
+//            writeValueCallback(DataSerializer.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousECG, packetNumber: i))
+//            while incomingDataQueue.getlength() < 2 { }
+//            let length = Int(incomingDataQueue.getElements[1]) + 1
+//            while incomingDataQueue.getlength() != length { }
+//            let data = incomingDataQueue.getElementsAndClear()
+            
+            //            print("Packet: \(i), Data: \(data), Data count: \(data.count)")
             if DataSerializer.crc(data) != data[data.count - 1] {
-//                stopTimer()
                 оnFailure(.invalidCrc)
                 resetExchangeCallback()
                 return
             }
+            process98bytePacket(data: Array(data[2 ..< 100]))
+//            print(process98bytePacket(data: Array(data[2 ..< 100])), packetCount)
         }
+        comletion([1, 2, 3])
     }
     
     public func onDataReceived(data: [UInt8]) {

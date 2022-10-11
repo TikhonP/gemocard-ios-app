@@ -15,8 +15,9 @@ class CompletionStorage {
     public var getHeaderResultsNumberOfPreviousMeasurement: GetHeaderResultsNumberOfPreviousMeasurementCompletion!
     public var getResultsNumberOfPreviousMeasurement: GetResultsNumberOfPreviousMeasurementCompletion!
     public var getECG: GetECGCompletion!
+    public var requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG: RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion!
     
-    public var оnFailure: OnFailure!
+    public var onFailure: OnFailure!
 }
 
 enum FailureCodes {
@@ -32,6 +33,7 @@ enum GemocardDeviceControllerStatus {
     case getHeaderResultsNumberOfPreviousMeasurement
     case getResultsNumberOfPreviousMeasurement
     case getECG
+    case requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG
 }
 
 /// Implements steps and methods to communicate with Gemocard
@@ -69,7 +71,7 @@ class GemocardDeviceController {
         self.timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { timer in
             if self.isProcessing {
                 self.status = .unknown
-                self.completionStorage.оnFailure(.timeout)
+                self.completionStorage.onFailure(.timeout)
             }
         })
     }
@@ -82,6 +84,11 @@ class GemocardDeviceController {
         return DataSerializer.crc(data) == data[data.count - 1]
     }
     
+    private func writeValueForGetECGDataController(_ data: Data) {
+        status = .getECG
+        writeValueCallback(data)
+    }
+    
     // MARK: - Public functions
     
     public func onDataReceived(data: [UInt8]) {
@@ -92,7 +99,7 @@ class GemocardDeviceController {
             stopTimer()
             guard validateCRC(data) else {
                 status = .unknown
-                completionStorage.оnFailure(.invalidCrc)
+                completionStorage.onFailure(.invalidCrc)
                 return
             }
             let result = DataSerializer.deviceStatusDeserializer(bytes: data)
@@ -102,7 +109,7 @@ class GemocardDeviceController {
             stopTimer()
             guard validateCRC(data) else {
                 status = .unknown
-                completionStorage.оnFailure(.invalidCrc)
+                completionStorage.onFailure(.invalidCrc)
                 return
             }
             let date = DataSerializer.dateAndTimeFromDeviceDeserializer(bytes: data)
@@ -112,7 +119,7 @@ class GemocardDeviceController {
             stopTimer()
             guard validateCRC(data) else {
                 status = .unknown
-                completionStorage.оnFailure(.invalidCrc)
+                completionStorage.onFailure(.invalidCrc)
                 return
             }
             let measurementsCount = DataSerializer.numberOfMeasurementsInDeviceMemoryDeserializer(bytes: data)
@@ -122,7 +129,7 @@ class GemocardDeviceController {
             stopTimer()
             guard validateCRC(data) else {
                 status = .unknown
-                completionStorage.оnFailure(.invalidCrc)
+                completionStorage.onFailure(.invalidCrc)
                 return
             }
             let measurementHeaderResult = DataSerializer.resultsHeaderNumberOfPreviousMeasurementDeserializer(bytes: data)
@@ -138,7 +145,7 @@ class GemocardDeviceController {
             stopTimer()
             guard validateCRC(finalData) else {
                 status = .unknown
-                completionStorage.оnFailure(.invalidCrc)
+                completionStorage.onFailure(.invalidCrc)
                 return
             }
             let measurementResult = DataSerializer.resultsNumberOfPreviousMeasurementDeserializer(bytes: finalData)
@@ -147,13 +154,23 @@ class GemocardDeviceController {
             completionStorage.getResultsNumberOfPreviousMeasurement(measurementResult)
         case .getECG:
             getECGController?.onDataReceived(data: data)
+        case .requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG:
+            stopTimer()
+            guard validateCRC(data) else {
+                status = .unknown
+                completionStorage.onFailure(.invalidCrc)
+                return
+            }
+            let packetCount = DataSerializer.responseForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGDeserializer(bytes: data)
+            status = .unknown
+            completionStorage.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(packetCount)
         }
     }
     
     public func getDeviceStatus(completion: @escaping GetDeviceStatusCompletion, оnFailure: @escaping OnFailure) {
         status = .getDeviceStatus
         completionStorage.getDeviceStatus = completion
-        completionStorage.оnFailure = оnFailure
+        completionStorage.onFailure = оnFailure
         writeValueCallback(DataSerializer.deviceStatusQuery())
         startTimer()
     }
@@ -170,7 +187,7 @@ class GemocardDeviceController {
     public func getDateAndTimeFromDevice(completion: @escaping GetDateAndTimeFromDeviceCompletion, оnFailure: @escaping OnFailure) {
         status = .getDateAndTimeFromDevice
         completionStorage.getDateAndTimeFromDevice = completion
-        completionStorage.оnFailure = оnFailure
+        completionStorage.onFailure = оnFailure
         writeValueCallback(DataSerializer.requestDateAndTimeFromDevice())
         startTimer()
     }
@@ -182,7 +199,7 @@ class GemocardDeviceController {
     public func getNumberOfMeasurementsInDeviceMemory(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
         status = .getNumberOfMeasurementsInDeviceMemory
         completionStorage.getNumberOfMeasurementsInDeviceMemory = completion
-        completionStorage.оnFailure = оnFailure
+        completionStorage.onFailure = оnFailure
         writeValueCallback(DataSerializer.getNumberOfMeasurementsInDeviceMemory())
         startTimer()
     }
@@ -190,7 +207,7 @@ class GemocardDeviceController {
     public func getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8, completion: @escaping GetHeaderResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         status = .getHeaderResultsNumberOfPreviousMeasurement
         completionStorage.getHeaderResultsNumberOfPreviousMeasurement = completion
-        completionStorage.оnFailure = оnFailure
+        completionStorage.onFailure = оnFailure
         writeValueCallback(DataSerializer.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement))
         startTimer()
     }
@@ -198,15 +215,23 @@ class GemocardDeviceController {
     public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         status = .getResultsNumberOfPreviousMeasurement
         completionStorage.getResultsNumberOfPreviousMeasurement = completion
-        completionStorage.оnFailure = оnFailure
+        completionStorage.onFailure = оnFailure
         writeValueCallback(DataSerializer.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement))
         startTimer()
     }
     
-    public func getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
+    public func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
         status = .getECG
-        writeValueCallback(DataSerializer.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousMeasurement))
-        getECGController = GetECGController(resetExchangeCallback: resetExchange, comletion: completion, оnFailure: оnFailure)
+        getECGController = GetECGController(numberOfPreviousECG: numberOfPreviousECG,resetExchangeCallback: resetExchange, writeValueCallback: writeValueForGetECGDataController, comletion: completion, оnFailure: оnFailure)
+    }
+    
+    public func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(completion: @escaping RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion, onFailure: @escaping OnFailure) {
+        status = .requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG
+        completionStorage.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG = completion
+        completionStorage.onFailure = onFailure
+        writeValueCallback(DataSerializer.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG())
+        startTimer()
+        
     }
     
     /// Use for invalid crc

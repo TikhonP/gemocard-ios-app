@@ -209,7 +209,7 @@ final class GemocardKit: ObservableObject {
     }
     
     func getResultsNumberOfPreviousECG() {
-        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousMeasurement: 7) { data in
+        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: 0) { data in
             print("\(data)")
         } оnFailure: { failureCode in
             print("Error: \(failureCode)")
@@ -227,6 +227,14 @@ final class GemocardKit: ObservableObject {
             } оnFailure: { failureCode in
                 print("Error: \(failureCode)")
             }
+        }
+    }
+    
+    func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG() {
+        gemocardSDK.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG() { packetCount in
+            print("Packet count: \(packetCount)")
+        } onFailure: { failureCode in
+            print("Error: \(failureCode)")
         }
     }
 }

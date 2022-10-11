@@ -62,6 +62,7 @@ struct MainView: View {
                         Text("Загрузить N измерение")
                     }
                     Button(action: gemocardKit.getResultsNumberOfPreviousECG) { Text("Загрузить N ЭКГ") }
+                    Button(action: gemocardKit.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG) { Text("Узнать устанорвленное количество пакетов по 98 байт") }
                 }
             }
         }

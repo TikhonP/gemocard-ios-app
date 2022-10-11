@@ -28,9 +28,23 @@ struct AsyncQueue<T> {
         }
     }
     
+    mutating func getElementsAndClear() -> [T] {
+        return queue.sync(flags: .barrier) {
+            let elements = elements
+            self.elements = []
+            return elements
+        }
+    }
+    
     mutating func clear() {
         queue.sync(flags: .barrier) {
             self.elements = []
+        }
+    }
+    
+    mutating func getlength() -> Int {
+        return queue.sync(flags: .barrier) {
+            return elements.count
         }
     }
     
@@ -43,12 +57,6 @@ struct AsyncQueue<T> {
     var tail: T? {
         return queue.sync(flags: .barrier) {
             return elements.last
-        }
-    }
-    
-    var length: Int {
-        return queue.sync(flags: .barrier) {
-            return elements.count
         }
     }
     

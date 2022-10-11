@@ -67,3 +67,7 @@ typealias GetResultsNumberOfPreviousMeasurementCompletion = (_ measurementResult
 /// Get ECG completion
 /// - Parameter data: array of packets
 typealias GetECGCompletion = (_ data: [Int]) -> Void
+
+/// Get setted value of packets count
+/// - Parameter packetCount: packet count
+typealias RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion = (_ packetCount: UInt8) -> Void
