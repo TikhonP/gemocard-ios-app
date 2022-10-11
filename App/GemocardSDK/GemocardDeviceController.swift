@@ -72,6 +72,7 @@ class GemocardDeviceController {
             if self.isProcessing {
                 self.status = .unknown
                 self.completionStorage.onFailure(.timeout)
+                self.getECGController = nil
             }
         })
     }
@@ -153,6 +154,7 @@ class GemocardDeviceController {
             dataStorage = nil
             completionStorage.getResultsNumberOfPreviousMeasurement(measurementResult)
         case .getECG:
+            startTimer()
             getECGController?.onDataReceived(data: data)
         case .requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG:
             stopTimer()
@@ -223,6 +225,7 @@ class GemocardDeviceController {
     public func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
         status = .getECG
         getECGController = GetECGController(numberOfPreviousECG: numberOfPreviousECG,resetExchangeCallback: resetExchange, writeValueCallback: writeValueForGetECGDataController, comletion: completion, оnFailure: оnFailure)
+        startTimer()
     }
     
     public func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(completion: @escaping RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion, onFailure: @escaping OnFailure) {
@@ -231,11 +234,11 @@ class GemocardDeviceController {
         completionStorage.onFailure = onFailure
         writeValueCallback(DataSerializer.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG())
         startTimer()
-        
     }
     
     /// Use for invalid crc
     public func resetExchange() {
         status = .unknown
+        stopTimer()
     }
 }

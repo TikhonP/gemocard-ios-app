@@ -65,8 +65,10 @@ typealias GetHeaderResultsNumberOfPreviousMeasurementCompletion = (_ measurement
 typealias GetResultsNumberOfPreviousMeasurementCompletion = (_ measurementResult: MeasurementResult) -> Void
 
 /// Get ECG completion
-/// - Parameter data: array of packets
-typealias GetECGCompletion = (_ data: [Int]) -> Void
+/// - Parameters:
+///  - ECGdata: array of ecg
+///  - ECGStatusData: array of ``BrokenElectrodesAndPacemaker``
+typealias GetECGCompletion = (_ ECGdata: [UInt32], _ ECGStatusData: [UInt8]) -> Void
 
 /// Get setted value of packets count
 /// - Parameter packetCount: packet count

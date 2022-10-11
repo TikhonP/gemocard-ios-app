@@ -159,8 +159,8 @@ struct MeasurementResult {
     /// номер пользователя
     let userId: Int16
     
-    let systolicBloodPressure: Int16
-    let diastolicBloodPressure: Int16
+    let systolicBloodPressure: Int32
+    let diastolicBloodPressure: Int32
     let pulse: Int16
     
     let arrhythmiaStatus: ArrhythmiaStatus
@@ -186,8 +186,8 @@ struct MeasurementResult {
             changeSeriesEndFlag: ChangeSeriesEndFlag(rawValue: bytes[6]) ?? .unknown,
             idSeriesOfMeasurement: Int16(bytes[7]),
             userId: Int16(bytes[8]),
-            systolicBloodPressure: Int16(DataSerializer.twoBytesToInt(MSBs: bytes[9], LSBs: bytes[10])),
-            diastolicBloodPressure: Int16(DataSerializer.twoBytesToInt(MSBs: bytes[11], LSBs: bytes[12])),
+            systolicBloodPressure: Int32(DataSerializer.twoBytesToInt(MSBs: bytes[9], LSBs: bytes[10])),
+            diastolicBloodPressure: Int32(DataSerializer.twoBytesToInt(MSBs: bytes[11], LSBs: bytes[12])),
             pulse: Int16(bytes[13]),
             arrhythmiaStatus: ArrhythmiaStatus(rawValue: bytes[14]) ?? .unknown,
             rhythmDisturbances: Int16(bytes[15]),

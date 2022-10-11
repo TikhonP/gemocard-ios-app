@@ -35,7 +35,7 @@ class PersistenceController: ObservableObject {
         }
     }
     
-    func createMeasurementFromStruct(measurement: MeasurementResult, objectHash: Int, context: NSManagedObjectContext) {
+    func createMeasurementFromStruct(measurement: MeasurementResult, objectHash: Int, ecgData: [UInt32], ecgStatusData: [UInt8], context: NSManagedObjectContext) {
         let measurementModel = Measurement(context: context)
         measurementModel.id = UUID()
         measurementModel.date = measurement.date
@@ -52,6 +52,8 @@ class PersistenceController: ObservableObject {
         measurementModel.arrhythmiaStatus = Int16(measurement.arrhythmiaStatus.rawValue)
         measurementModel.rhythmDisturbances = measurement.rhythmDisturbances
         measurementModel.objectHash = Int64(objectHash)
+        measurementModel.ecgData = ecgData
+        measurementModel.ecgStatusData = ecgStatusData
         save(context: context)
     }
 }

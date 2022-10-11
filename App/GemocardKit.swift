@@ -51,31 +51,35 @@ final class GemocardKit: ObservableObject {
     
     private func processMeasurementHeaderResult(_ measurementHeaderResult: MeasurementHeaderResult) {
         let context = persistenceController.container.viewContext
-        let fetchRequest = Measurement.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "objectHash == %ld", measurementHeaderResult.objectHash, #keyPath(Measurement.objectHash))
+//        let fetchRequest = Measurement.fetchRequest()
+//        fetchRequest.predicate = NSPredicate(format: "objectHash == %ld", measurementHeaderResult.objectHash, #keyPath(Measurement.objectHash))
+//
+//        guard let objects = try? context.fetch(fetchRequest) else {
+//            print("Core Data failed to fetch hash")
+//            //            guard let error = error as? Error else {
+//            //                print("Core Data failed to fetch hash")
+//            //                return
+//            //            }
+//            //            print("Core Data failed to fetch: \(error.localizedDescription)")
+//            // TODO: add sentry
+//            // SentrySDK.capture(error: error)
+//            return
+//        }
         
-        guard let objects = try? context.fetch(fetchRequest) else {
-            print("Core Data failed to fetch hash")
-            //            guard let error = error as? Error else {
-            //                print("Core Data failed to fetch hash")
-            //                return
-            //            }
-            //            print("Core Data failed to fetch: \(error.localizedDescription)")
-            // TODO: add sentry
-            // SentrySDK.capture(error: error)
-            return
-        }
-        
-        if objects.isEmpty {
+//        if objects.isEmpty {
             gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16(self.currentMeasurement), completion: { measurementResult in
-                self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, objectHash: measurementHeaderResult.objectHash, context: context)
-                print("SavingMeasurement")
-                self.getMeasurentHeader()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
+                        self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, objectHash: measurementHeaderResult.objectHash, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
+                        print("SavingMeasurement")
+                        self.getMeasurentHeader()
+                    }, оnFailure: self.onRequestFail)
+                }
             }, оnFailure: onRequestFail)
-        } else {
-            getMeasurentHeader()
-            print("Skipping already synchronized objects")
-        }
+//        } else {
+//            getMeasurentHeader()
+//            print("Skipping already synchronized objects")
+//        }
     }
     
     // MARK: - callbacks for Gemocard SDK usage
@@ -209,8 +213,8 @@ final class GemocardKit: ObservableObject {
     }
     
     func getResultsNumberOfPreviousECG() {
-        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: 0) { data in
-            print("\(data)")
+        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: 1) { ECGData, ECGStatusData  in
+            print("Got data: \(ECGData.count)")
         } оnFailure: { failureCode in
             print("Error: \(failureCode)")
         }
