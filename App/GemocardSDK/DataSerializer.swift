@@ -175,8 +175,8 @@ class DataSerializer {
     /// Запрос результатов N предыдущего измерения
     /// - Parameter numberOfPreviousMeasurement: номер измерения
     /// - Returns: serialized Data object
-    class func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16) -> Data {
-        let results = DataSerializer.intToTwoBytes(numberOfPreviousMeasurement)
+    class func getMeasurement(measurementNumber: UInt16) -> Data {
+        let results = DataSerializer.intToTwoBytes(measurementNumber)
         let bytes: [UInt8] = [0xAA, 0x05, 0x26, results.MSBs, results.LSBs, 0]
         return DataSerializer.addCrc(bytes)
     }
@@ -204,6 +204,19 @@ class DataSerializer {
         pressureWaveforms: Bool = false
         //        photoplethysmogram: Bool = false  // Unsupported now
     ) -> Data {
+        
+        struct ExchangeMode: OptionSet {
+            let rawValue: UInt8
+            
+            static let ECG1  = Self(rawValue: 1 << 0)
+            static let ECG2  = Self(rawValue: 1 << 1)
+            static let ECG4  = Self(rawValue: 1 << 2)
+            static let pressureWaveforms = Self(rawValue: 1 << 3)
+            
+            /// Unsupported now
+            static let photoplethysmogram = Self(rawValue: 1 << 4)
+        }
+        
         var exchangeMode: ExchangeMode = []
         if ECG1 { exchangeMode.insert(.ECG1) }
         if ECG2 { exchangeMode.insert(.ECG2) }
@@ -260,8 +273,8 @@ class DataSerializer {
     /// Запрос результатов N предыдущего измерения
     /// - Parameter numberOfPreviousMeasurement: номер измерения
     /// - Returns: serialized Data object
-    class func getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8) -> Data {
-        let bytes: [UInt8] = [0xAA, 0x04, 0x66, numberOfPreviousMeasurement, 0]
+    class func getMeasurementHeader(measurementNumber: UInt8) -> Data {
+        let bytes: [UInt8] = [0xAA, 0x04, 0x66, measurementNumber, 0]
         return DataSerializer.addCrc(bytes)
     }
     

@@ -21,17 +21,18 @@ enum CompletionCodes {
     case failedToConnect
 }
 
+/// Gemocard UUIDs for using with GATT services and
+private struct GemocardUUIDs {
+    static let service = CBUUID.init(string: "ffe0")
+    static let characteristic = CBUUID.init(string: "ffe1")
+}
+
 /// Main Gemocard controller class
 class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     
-    /// Gemocard UUIDs for using with GATT services and
-    private struct GemocardUUIDs {
-        static let service = CBUUID.init(string: "ffe0")
-        static let characteristic = CBUUID.init(string: "ffe1")
-    }
+    // MARK: - Private Varibles
     
     private let completion: GemocardStatusUpdateCallback
-    
     private let onDiscoverCallback: OnDiscoverCallback
     
     private var centralManager: CBCentralManager?
@@ -40,9 +41,9 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     private var peripheral: CBPeripheral!
     private var isPeriferalReady: Bool = false
     
-    private var characteristic: CBCharacteristic?
+    private var characteristic: CBCharacteristic!
     
-    private var gemocardDeviceController: GemocardDeviceController?
+    private var gemocardDeviceController: GemocardDeviceController!
     
     /// Initialization of ``GemocardSDK`` class
     /// - Parameters:
@@ -57,7 +58,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         self.onDiscoverCallback = onDiscoverCallback
     }
     
-    // MARK: - private methods
+    // MARK: - Private Methods
     
     private func checkIsSentralManagerReady(completion: () -> Void) {
         if isCentralManagerReady {
@@ -75,7 +76,9 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
     }
     
-    // MARK: - public methods
+    // MARK: - Public Methods
+    
+    // MARK: BLE Controls
     
     /// Start BLE devices discovering
     ///
@@ -113,60 +116,60 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
     }
     
+    // MARK: - Gemocard Controls: Get Data
+    
     public func getDeviceStatus(completion: @escaping GetDeviceStatusCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getDeviceStatus(completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getDeviceStatus(completion: completion, оnFailure: оnFailure)
         }
     }
     
-    public func getDateTime(completion: @escaping GetDateAndTimeFromDeviceCompletion, оnFailure: @escaping OnFailure) {
+    public func getDeviceDateTime(completion: @escaping GetDateAndTimeFromDeviceCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getDateAndTimeFromDevice(completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getDeviceDateTime(completion: completion, оnFailure: оnFailure)
         }
     }
     
     public func getNumberOfMeasurements(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getNumberOfMeasurementsInDeviceMemory(completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getNumberOfMeasurementsInDeviceMemory(completion: completion, оnFailure: оnFailure)
         }
     }
     
-    public func getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8, completion: @escaping GetHeaderResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+    public func getMeasurementHeader(measurementNumber: UInt8, completion: @escaping GetMeasurementHeaderCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getMeasurementHeader(measurementNumber: measurementNumber, completion: completion, оnFailure: оnFailure)
         }
     }
     
-    public func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+    public func getMeasurement(measurementNumber: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement, completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getMeasurement(measurementNumber: measurementNumber, completion: completion, оnFailure: оnFailure)
         }
     }
     
-    public func getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
+    public func getECG(ECGnumber: UInt8, completion: @escaping GetECGCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.getResultsNumberOfPreviousECG(numberOfPreviousECG: numberOfPreviousECG, completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getECG(ECGnumber: ECGnumber, completion: completion, оnFailure: оnFailure)
         }
     }
+    
+    // MARK: - Gemocard Controls: Set Commands
     
     public func eraseMemory(completion: @escaping CommandDoneCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.eraseMemory(completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.eraseMemory(completion: completion, оnFailure: оnFailure)
         }
     }
     
-    // MARK: - private functions for ``ContecDevice`` usage
+    // MARK: - private functions for ``GeamocardDeviceController usage
     
     private func sendData(_ data: Data) {
         print("SEND DATA (UInt8): \(data.bytes)")
-        peripheral.writeValue(data, for: characteristic!, type: .withResponse)
+        peripheral.writeValue(data, for: characteristic, type: .withResponse)
     }
     
-    private func onContecDeviceupdateStatusCallback(_ completionCode: CompletionCodes) {
-        completion(completionCode)
-    }
-    
-    // MARK: - central manager callbacks
+    // MARK: - Central Manager Callbacks
     
     internal func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state != .poweredOn {
@@ -223,6 +226,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
             print("Failed to discover characteristics for service \(service.uuid), error: \(error?.localizedDescription ?? "no error description")")
             return
         }
+        
         guard let discoveredCharacteristics = service.characteristics else {
             print("peripheralDidDiscoverCharacteristics called for empty characteristics for service \(service.uuid)")
             return
@@ -230,14 +234,16 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         
         for characteristic in discoveredCharacteristics {
             if characteristic.uuid == GemocardUUIDs.characteristic {
+                
                 self.characteristic = characteristic
                 peripheral.setNotifyValue(true, for: characteristic)
-                isPeriferalReady = true
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.gemocardDeviceController?.getDeviceStatus { deviceStatus,deviceOperatingMode,cuffPressure in
+                    self.gemocardDeviceController.getDeviceStatus { deviceStatus,deviceOperatingMode,cuffPressure in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            self.gemocardDeviceController?.setDate { _ in
-                                self.gemocardDeviceController?.setTime { _ in
+                            self.gemocardDeviceController.setDate { _ in
+                                self.gemocardDeviceController.setTime { _ in
+                                    self.isPeriferalReady = true
                                     self.completion(.connected)
                                 } оnFailure: { _ in
                                     self.completion(.failedToConnect)
@@ -254,6 +260,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
                     }
                 }
                 break
+                
             }
         }
     }
@@ -263,11 +270,8 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
             print("didUpdateValueFor characteristic with emty data")
             return
         }
-        
         let bytes = data.bytes
-//        print("Receiving...", bytes)
         print("RECEIVED DATA (UInt8): \(bytes)")
-        
-        gemocardDeviceController!.onDataReceived(bytes: bytes)
+        gemocardDeviceController.onDataReceived(bytes: bytes)
     }
 }

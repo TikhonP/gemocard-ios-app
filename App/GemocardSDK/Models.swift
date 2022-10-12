@@ -8,38 +8,7 @@
 
 import Foundation
 
-struct BrokenElectrodesAndPacemaker: OptionSet {
-    let rawValue: UInt8
-    
-    static let brokenR = Self(rawValue: 1 << 0)
-    static let brokenF = Self(rawValue: 1 << 1)
-    static let brokenC1 = Self(rawValue: 1 << 2)
-    static let brokenL = Self(rawValue: 1 << 3)
-    static let pacemakerDetection = Self(rawValue: 1 << 4)
-}
-
-/// статус прибора
-enum DeviceStatus: UInt8 {
-    /// ожидание (готов к работе)
-    case readyWaiting = 0x00
-    
-    /// измерение
-    case measurement = 0x01
-    
-    /// тестовый режим
-    case testMode = 0x02
-    
-    /// ожидание серии (готов к работе в режиме серии измерений)
-    case readyWaitingSeries = 0x03
-    
-    /// измерение в режиме серии
-    case seriesMeasurement = 0x04
-    
-    /// ожидание последующего измерения в серии
-    case waitingNextSeriesMeasurement = 0x05
-    
-    case unknown
-}
+// MARK: - Measurement Header Model
 
 /// Режим работы прибора
 enum DeviceOperatingMode: UInt8 {
@@ -56,18 +25,6 @@ enum MeasChan: UInt8 {
     case LR_FR_C1 = 0x07
     case LR_FR_C1_C2_C3_C4_C5_C6 = 0xFF
     case unknown = 0x00
-}
-
-struct ExchangeMode: OptionSet {
-    let rawValue: UInt8
-    
-    static let ECG1   = Self(rawValue: 1 << 0)
-    static let ECG2  = Self(rawValue: 1 << 1)
-    static let ECG4  = Self(rawValue: 1 << 2)
-    static let pressureWaveforms = Self(rawValue: 1 << 3)
-    
-    /// Unsupported now
-    static let photoplethysmogram = Self(rawValue: 1 << 4)
 }
 
 enum SampleRate: UInt8 {
@@ -118,6 +75,8 @@ struct MeasurementHeaderResult {
         return calendar.date(from: dateComponents)!
     }
 }
+
+// MARK: - Measurement Model
 
 /// Флаг завершения серии изм
 enum ChangeSeriesEndFlag: UInt8 {
@@ -206,4 +165,41 @@ struct MeasurementResult {
         let dateComponents = DateComponents(timeZone: TimeZone.current, year: year, month: month, day: day, hour: hour, minute: minute, second: second)
         return calendar.date(from: dateComponents)!
     }
+}
+
+// MARK: - ECG Data Models
+
+struct BrokenElectrodesAndPacemaker: OptionSet {
+    let rawValue: UInt8
+    
+    static let brokenR = Self(rawValue: 1 << 0)
+    static let brokenF = Self(rawValue: 1 << 1)
+    static let brokenC1 = Self(rawValue: 1 << 2)
+    static let brokenL = Self(rawValue: 1 << 3)
+    static let pacemakerDetection = Self(rawValue: 1 << 4)
+}
+
+// MARK: - Get Gemocard Data Models
+
+/// статус прибора
+enum DeviceStatus: UInt8 {
+    /// ожидание (готов к работе)
+    case readyWaiting = 0x00
+    
+    /// измерение
+    case measurement = 0x01
+    
+    /// тестовый режим
+    case testMode = 0x02
+    
+    /// ожидание серии (готов к работе в режиме серии измерений)
+    case readyWaitingSeries = 0x03
+    
+    /// измерение в режиме серии
+    case seriesMeasurement = 0x04
+    
+    /// ожидание последующего измерения в серии
+    case waitingNextSeriesMeasurement = 0x05
+    
+    case unknown
 }

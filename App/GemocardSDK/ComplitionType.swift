@@ -54,7 +54,7 @@ typealias GetNumberOfMeasurementsInDeviceMemoryCompletion = (_ measurementsCount
 
 /// Get header results N previous measurent
 /// - Parameter measurementHeaderResult: measurement headers results struct
-typealias GetHeaderResultsNumberOfPreviousMeasurementCompletion = (_ measurementHeaderResult: MeasurementHeaderResult) -> Void
+typealias GetMeasurementHeaderCompletion = (_ measurementHeaderResult: MeasurementHeaderResult) -> Void
 
 /// Get results N previous measurent
 /// - Parameter measurementResult: measurement results struct

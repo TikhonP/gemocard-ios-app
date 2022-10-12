@@ -18,15 +18,12 @@ final class GemocardKit: ObservableObject {
     
     /// Delay between requests in seconds
     private let delay = 0.3
-    
     private let persistenceController = PersistenceController.shared
     
     private var gemocardSDK: GemocardSDK!
-    
     private var measurementsCount = 0
     private var currentMeasurement: UInt8 = 1
     private var maxDateWhileFetching: Date? = UserDefaults.lastSyncedDateKey
-    
     private var healthKitAvailible = false
     
     // MARK: - published vars
@@ -73,12 +70,10 @@ final class GemocardKit: ObservableObject {
     private func startHealthKit() {
         HealthKitController.authorizeHealthKit { (authorized, error) in
             guard authorized else {
-                let baseMessage = "HealthKit Authorization Failed"
-                
                 if let error = error {
-                    print("\(baseMessage). Reason: \(error.localizedDescription)")
+                    print("HealthKit Authorization Failed. Reason: \(error.localizedDescription)")
                 } else {
-                    print(baseMessage)
+                    print("HealthKit Authorization Failed")
                 }
                 self.healthKitAvailible = false
                 return
@@ -112,7 +107,7 @@ final class GemocardKit: ObservableObject {
             if self.currentMeasurement <= self.measurementsCount {
                 DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
                     print("Getting measurement: \(self.currentMeasurement)")
-                    self.gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
+                    self.gemocardSDK.getMeasurementHeader(measurementNumber: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
                 }
             } else {
                 self.finishMeasurementFetch()
@@ -134,7 +129,7 @@ final class GemocardKit: ObservableObject {
             if isObjectNew {
                 DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
                     self.progress = 0.1 + (Float(self.currentMeasurement + 1) / Float(self.measurementsCount + 1)) * 0.9
-                    self.gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16(self.currentMeasurement), completion: { measurementResult in
+                    self.gemocardSDK.getMeasurement(measurementNumber: UInt16(self.currentMeasurement), completion: { measurementResult in
                         
                         if measurementResult.changeSeriesEndFlag != .seriesCanceled {
                             if let maxDateWhileFetching = self.maxDateWhileFetching {
@@ -145,7 +140,7 @@ final class GemocardKit: ObservableObject {
                                 self.maxDateWhileFetching = measurementResult.date
                             }
                             DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
-                                self.gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
+                                self.gemocardSDK.getECG(ECGnumber: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
                                     self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, measurementHeader: measurementHeaderResult, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
                                     if self.healthKitAvailible {
                                         HealthKitController.saveRecord(
@@ -175,7 +170,7 @@ final class GemocardKit: ObservableObject {
     
     // MARK: - callbacks for Gemocard SDK usage
     
-    func gemocardSDKcompletion(code: CompletionCodes) {
+    private func gemocardSDKcompletion(code: CompletionCodes) {
         DispatchQueue.main.async {
             print("Updated status code: \(code)")
             switch code {
@@ -218,7 +213,7 @@ final class GemocardKit: ObservableObject {
         }
     }
     
-    func onDiscoverCallback(peripheral: CBPeripheral, _: [String : Any], _ RSSI: NSNumber) {
+    private func onDiscoverCallback(peripheral: CBPeripheral, _: [String : Any], _ RSSI: NSNumber) {
         if (!devices.contains(peripheral)) {
             devices.append(peripheral)
         }
@@ -279,7 +274,7 @@ final class GemocardKit: ObservableObject {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
                     print("Getting measurement: \(self.currentMeasurement)")
-                    self.gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
+                    self.gemocardSDK.getMeasurementHeader(measurementNumber: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
                 }
             }, оnFailure: self.onRequestFail)
         }
@@ -296,62 +291,6 @@ final class GemocardKit: ObservableObject {
         }
     }
     
-    // MARK: - testing
-    
-    func getDeviceStatus() {
-        self.gemocardSDK.getDeviceStatus() { deviceStatus, deviceOperatingMode, cuffPressure in
-            print("Device status: \(deviceStatus), device operating mode: \(deviceOperatingMode), ciff pressure: \(cuffPressure)")
-        } оnFailure: { failureCode in
-            print("Error: \(failureCode)")
-        }
-    }
-    
-    func getDateTime() {
-        gemocardSDK.getDateTime() { date in
-            print("Date: \(String(describing: date))")
-        } оnFailure: { failureCode in
-            print("Error: \(failureCode)")
-        }
-    }
-    
-    func getNumberOfMeasurements() {
-        gemocardSDK.getNumberOfMeasurements() { measurementsCount in
-            print("Number of measurements: \(measurementsCount)")
-        } оnFailure: { failureCode in
-            print("Error: \(failureCode)")
-        }
-    }
-    
-    
-    
-    func getHeaderResultsNumberOfPreviousMeasurement() {
-        gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8(debugMeasurementNumber)!) { measurementResult in
-            print("Mesuremnt result: \(measurementResult)")
-        } оnFailure: { failureCode in
-            print("Error: \(failureCode)")
-        }
-    }
-    
-    func getResultsNumberOfPreviousECG() {
-        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8(debugMeasurementNumber)!) { ECGData, ECGStatusData  in
-//            print("\(ECGData)")
-            print("Got data: \(String(describing: ECGData?.count))")
-        } оnFailure: { failureCode in
-            print("Error: \(failureCode)")
-        }
-    }
-    
-    func getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16) {
-        DispatchQueue.main.async {
-            self.gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement) { measurementResult in
-                print("Mesuremnt result: \(measurementResult)")
-                
-            } оnFailure: { failureCode in
-                print("Error: \(failureCode)")
-            }
-        }
-    }
-
     // MARK: - Public functions to use in views
     
     func sendDataToMedsenger() {
@@ -413,16 +352,6 @@ final class GemocardKit: ObservableObject {
 //                        "FVC": record.fvc,
 //                        "FEV1": record.fev1,
 //                        "FEV1%": record.fev1_fvc,
-//                        "PEF": record.pef,
-//                        "FEF25": record.fef25,
-//                        "FEF50": record.fef50,
-//                        "FEF75": record.fef75,
-//                        "FEF2575": record.fef2575,
-//                        "FEV05": record.fef25,
-//                        "FEV3": record.fev3,
-//                        "FEV6": record.fev6,
-//                        "PEFT": record.peft,
-//                        "EVOL": record.evol
                     ]
                 ] as [String : Any]
                 
