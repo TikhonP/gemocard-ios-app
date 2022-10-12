@@ -77,7 +77,7 @@ enum SampleRate: UInt8 {
     case unknown = 0x00
 }
 
-struct MeasurementHeaderResult: Hashable {
+struct MeasurementHeaderResult {
     let deviceOperatingMode: DeviceOperatingMode
     let measChan: MeasChan
     
@@ -108,7 +108,7 @@ struct MeasurementHeaderResult: Hashable {
             arterialPressureWavefromNumber: Int16(bytes[6]),
             userId: Int16(bytes[7]),
             pointerToBeginningOfCardiogramInMemory: Int32(DataSerializer.twoBytesToInt(MSBs: bytes[8], LSBs: bytes[9])),
-            year: Int(bytes[10]), month: Int(bytes[11]), day: Int(bytes[12]), hour: Int(bytes[13]), minute: Int(bytes[14]), second: Int(bytes[15]))
+            year: Int(bytes[10]) + 2000, month: Int(bytes[11]), day: Int(bytes[12]), hour: Int(bytes[13]), minute: Int(bytes[14]), second: Int(bytes[15]))
         return measurementResult
     }
     
@@ -197,7 +197,7 @@ struct MeasurementResult {
             pulse: Int16(bytes[13]),
             arrhythmiaStatus: ArrhythmiaStatus(rawValue: bytes[14]) ?? .unknown,
             rhythmDisturbances: Int16(bytes[15]),
-            year: Int(bytes[16]), month: Int(bytes[17]), day: Int(bytes[18]), hour: Int(bytes[19]), minute: Int(bytes[20]), second: Int(bytes[21]))
+            year: Int(bytes[16]) + 2000, month: Int(bytes[17]), day: Int(bytes[18]), hour: Int(bytes[19]), minute: Int(bytes[20]), second: Int(bytes[21]))
         return measurementResult
     }
     

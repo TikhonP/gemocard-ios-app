@@ -48,24 +48,28 @@ struct RecordView: View {
                 }
                 
                 if #available(iOS 16.0, *) {
-                    Section(header: Text("Volumes")) {
-                        ScrollView(.horizontal) {
-                            Chart(Array(zip(measurement.ecgData!.indices, measurement.ecgData!)), id: \.0) { index, item in
-                                LineMark(
-                                    x: .value("Time", index),
-                                    y: .value("ECG value", item)
-                                )
-                            }
-                            .frame(height: 200)
+                    if measurement.ecgData != nil  {
+                        Section(header: Text("Volumes")) {
+//                            ScrollView(.horizontal) {
+                                Chart(Array(zip(data().indices, data())), id: \.0) { index, item in
+                                    LineMark(
+                                        x: .value("Time", index),
+                                        y: .value("ECG value", item)
+                                    )
+                                }
+                                .frame(height: 200)
+//                            }
                         }
                     }
-                } else {
-                    
                 }
+                
             }
             .navigationBarTitle("Measurement")
-            
         }
+    }
+     
+    func data() -> [UInt32] {
+        return Array(measurement.ecgData![3000..<3100])
     }
 }
 

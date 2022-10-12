@@ -21,6 +21,8 @@ struct SettingsView: View {
                 Section(header: Text("Connected device")) {
                     Text(gemocardKit.connectingPeripheral?.name ?? LocalizedStringKey("Unknown name").stringValue())
                     
+                    Button("Erase Device Memory", action: gemocardKit.eraseMemory)
+                    
                     if UserDefaults.saveUUID {
                         Button("Forget device", action: forgetDevice)
                     } else {
@@ -43,6 +45,12 @@ struct SettingsView: View {
                                 UserDefaults.savedGemocardUUID = nil
                             }
                         }
+                }
+                
+                if UserDefaults.medsengerContractId != nil && UserDefaults.medsengerAgentToken != nil {
+                    Section(footer: Text("Delete Medsenger authorization details, you will not be able to send data to the service until you authorize again")) {
+                        Button("Reset Medsenger credentials", action: gemocardKit.resetMedsengerCredentials)
+                    }
                 }
                 
                 Section(header: Text("About"), footer: Text("(С) Medsenger Sync 2022")) {

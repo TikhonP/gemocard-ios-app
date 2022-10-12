@@ -23,9 +23,18 @@ struct RecordLabel: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(measurement.diastolicBloodPressure) / \(measurement.systolicBloodPressure)")
-                .font(.headline)
-                .padding(.trailing, 1)
+            HStack {
+                Text(measurementHeader)
+                    .font(.headline)
+                    .padding(.trailing, 1)
+                if gemocardKit.presentUploadToMedsenger {
+                    if recordUploaded {
+                        Image(systemName: "checkmark.icloud")
+                    } else {
+                        Image(systemName: "icloud.slash")
+                    }
+                }
+            }
             Spacer()
             HStack {
                 Image(systemName: "clock")
@@ -36,6 +45,22 @@ struct RecordLabel: View {
         }
         .frame(height: 10)
         .padding()
+    }
+    
+    var measurementHeader: String {
+        let changeSeriesEndFlag = ChangeSeriesEndFlag(rawValue: UInt8(measurement.changeSeriesEndFlag))
+        if changeSeriesEndFlag == .seriesCanceled {
+            return "Series Canceled"
+        } else {
+            return "\(measurement.diastolicBloodPressure) / \(measurement.systolicBloodPressure)"
+        }
+    }
+    
+    private var recordUploaded: Bool {
+        guard let lastUploadedDate = UserDefaults.lastMedsengerUploadedDate, let recordDate = measurement.date else {
+            return false
+        }
+        return recordDate < lastUploadedDate
     }
 }
 

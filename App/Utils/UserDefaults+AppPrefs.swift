@@ -13,6 +13,10 @@ extension UserDefaults {
     private enum Keys {
         static let savedGemocardUUIDkey = "savedGemocardUUID"
         static let saveUUIDkey = "saveUUID"
+        static let lastSyncedDateKey = "lastSyncedDate"
+        static let medsengerContractIdKey = "medsengerContractId"
+        static let medsengerAgentTokenKey = "medsengerAgentToken"
+        static let lastMedsengerUploadedDateKey = "lastMedsengerUploadedDate"
     }
     
     class var savedGemocardUUID: String? {
@@ -30,6 +34,42 @@ extension UserDefaults {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: Keys.saveUUIDkey)
+        }
+    }
+    
+    class var lastSyncedDateKey: Date? {
+        get {
+            return UserDefaults.standard.object(forKey: Keys.lastSyncedDateKey) as? Date
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Keys.lastSyncedDateKey)
+        }
+    }
+    
+    class var medsengerContractId: Int? {
+        get {
+            return UserDefaults.standard.integer(forKey: Keys.medsengerContractIdKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Keys.medsengerContractIdKey)
+        }
+    }
+    
+    class var medsengerAgentToken: String? {
+        get {
+            return UserDefaults.standard.string(forKey: Keys.medsengerAgentTokenKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Keys.medsengerAgentTokenKey)
+        }
+    }
+    
+    class var lastMedsengerUploadedDate: Date? {
+        get {
+            return UserDefaults.standard.object(forKey: Keys.lastMedsengerUploadedDateKey) as? Date
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Keys.lastMedsengerUploadedDateKey)
         }
     }
     

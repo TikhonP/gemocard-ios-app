@@ -64,8 +64,12 @@ typealias GetResultsNumberOfPreviousMeasurementCompletion = (_ measurementResult
 /// - Parameters:
 ///  - ECGdata: array of ecg
 ///  - ECGStatusData: array of ``BrokenElectrodesAndPacemaker``
-typealias GetECGCompletion = (_ ECGdata: [UInt32], _ ECGStatusData: [UInt8]) -> Void
+typealias GetECGCompletion = (_ ECGdata: [UInt32]?, _ ECGStatusData: [UInt8]?) -> Void
 
 /// Get setted value of packets count
 /// - Parameter packetCount: packet count
 typealias RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion = (_ packetCount: UInt8) -> Void
+
+/// For response if done set requests
+/// - Parameter flag: status of operation completion
+typealias CommandDoneCompletion = (_ flag: Bool) -> Void

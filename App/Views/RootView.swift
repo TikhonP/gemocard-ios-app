@@ -22,6 +22,9 @@ struct RootView: View {
             })
             .onAppear(perform: { gemocardKit.initilizeGemocard() })
             .environmentObject(gemocardKit)
+            .onOpenURL { url in
+                gemocardKit.updatePropertiesFromDeeplink(url: url)
+            }
     }
 }
 

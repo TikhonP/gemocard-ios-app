@@ -18,7 +18,7 @@ enum CompletionCodes {
     case failedToDiscoverServiceError
     case periferalIsNotReady
     case connected
-    case invalidCrc
+    case failedToConnect
 }
 
 /// Main Gemocard controller class
@@ -119,18 +119,6 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
     }
     
-    public func startMeasurementForUser(user: UInt8) {
-        checkIfPeripheralReady() {
-            gemocardDeviceController?.startMeasurementForUser(user: user)
-        }
-    }
-
-    public func setDateTime() {
-        checkIfPeripheralReady() {
-            gemocardDeviceController?.setDateTime()
-        }
-    }
-    
     public func getDateTime(completion: @escaping GetDateAndTimeFromDeviceCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
             gemocardDeviceController?.getDateAndTimeFromDevice(completion: completion, оnFailure: оnFailure)
@@ -161,25 +149,16 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
     }
     
-    public func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(completion: @escaping RequestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECGCompletion, onFailure: @escaping OnFailure) {
+    public func eraseMemory(completion: @escaping CommandDoneCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController?.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG(completion: completion, onFailure: onFailure)
-        }
-    }
-    
-    public func testAction() {
-        checkIfPeripheralReady() {
-            gemocardDeviceController?.getNumberOfMeasurementsInDeviceMemory() { measurementsCount in
-                print("Number of measurements: \(measurementsCount)")
-            } оnFailure: { failureCode in
-                print("Failure code: \(failureCode)")
-            }
+            gemocardDeviceController?.eraseMemory(completion: completion, оnFailure: оnFailure)
         }
     }
     
     // MARK: - private functions for ``ContecDevice`` usage
     
     private func sendData(_ data: Data) {
+        print("SEND DATA (UInt8): \(data.bytes)")
         peripheral.writeValue(data, for: characteristic!, type: .withResponse)
     }
     
@@ -254,7 +233,26 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
                 self.characteristic = characteristic
                 peripheral.setNotifyValue(true, for: characteristic)
                 isPeriferalReady = true
-                completion(.connected)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.gemocardDeviceController?.getDeviceStatus { deviceStatus,deviceOperatingMode,cuffPressure in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self.gemocardDeviceController?.setDate { _ in
+                                self.gemocardDeviceController?.setTime { _ in
+                                    self.completion(.connected)
+                                } оnFailure: { _ in
+                                    self.completion(.failedToConnect)
+                                    self.disconnect()
+                                }
+                            } оnFailure: { _ in
+                                self.completion(.failedToConnect)
+                                self.disconnect()
+                            }
+                        }
+                    } оnFailure: { failureCode in
+                        self.completion(.failedToConnect)
+                        self.disconnect()
+                    }
+                }
                 break
             }
         }
@@ -268,7 +266,8 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         
         let bytes = data.bytes
 //        print("Receiving...", bytes)
+        print("RECEIVED DATA (UInt8): \(bytes)")
         
-        gemocardDeviceController!.onDataReceived(data: bytes)
+        gemocardDeviceController!.onDataReceived(bytes: bytes)
     }
 }

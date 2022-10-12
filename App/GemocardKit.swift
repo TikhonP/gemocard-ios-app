@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import CoreData
 import Foundation
 import CoreBluetooth
 
@@ -15,12 +16,18 @@ final class GemocardKit: ObservableObject {
     
     // MARK: - private vars
     
+    /// Delay between requests in seconds
+    private let delay = 0.3
+    
     private let persistenceController = PersistenceController.shared
     
     private var gemocardSDK: GemocardSDK!
     
     private var measurementsCount = 0
     private var currentMeasurement: UInt8 = 1
+    private var maxDateWhileFetching: Date? = UserDefaults.lastSyncedDateKey
+    
+    private var healthKitAvailible = false
     
     // MARK: - published vars
     
@@ -29,6 +36,8 @@ final class GemocardKit: ObservableObject {
     @Published var fetchingDataWithGemocard = false
     @Published var showBluetoothIsOffWarning = false
     @Published var showSelectDevicesInfo = false
+    @Published var presentUploadToMedsenger = UserDefaults.medsengerAgentToken != nil && UserDefaults.medsengerContractId != nil
+    @Published var sendingToMedsengerStatus: Int = 0
     
     @Published var progress: Float = 0.0
     
@@ -38,6 +47,8 @@ final class GemocardKit: ObservableObject {
     @Published var error: ErrorInfo?
     
     @Published var navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
+    
+    @Published var debugMeasurementNumber = "0"
     
     // MARK: - private functions
     
@@ -59,48 +70,106 @@ final class GemocardKit: ObservableObject {
         gemocardSDK = GemocardSDK(completion: gemocardSDKcompletion, onDiscoverCallback: onDiscoverCallback)
     }
     
+    private func startHealthKit() {
+        HealthKitController.authorizeHealthKit { (authorized, error) in
+            guard authorized else {
+                let baseMessage = "HealthKit Authorization Failed"
+                
+                if let error = error {
+                    print("\(baseMessage). Reason: \(error.localizedDescription)")
+                } else {
+                    print(baseMessage)
+                }
+                self.healthKitAvailible = false
+                return
+            }
+            self.healthKitAvailible = true
+            print("HealthKit Successfully Authorized.")
+        }
+    }
+    
     private func onRequestFail(_ failureCode: FailureCodes) {
-        print("Error: \(failureCode)")
+        DispatchQueue.main.async {
+            print("Error: \(failureCode)")
+            self.fetchingDataWithGemocard = false
+            self.throwAlert(ErrorAlerts.failedToFetchDataError, .error)
+            self.finishMeasurementFetch()
+        }
+    }
+    
+    private func finishMeasurementFetch() {
+        self.progress = 1
+        self.navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
+        self.fetchingDataWithGemocard = false
+        if let maxDateWhileFetching = self.maxDateWhileFetching {
+            UserDefaults.lastSyncedDateKey = maxDateWhileFetching
+        }
     }
     
     private func getMeasurentHeader() {
-        if currentMeasurement <= measurementsCount {
-            print("Getting measurement: \(currentMeasurement)")
-            gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement, completion: processMeasurementHeaderResult, оnFailure: onRequestFail)
+        DispatchQueue.main.async {
+            self.currentMeasurement += 1
+            if self.currentMeasurement <= self.measurementsCount {
+                DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
+                    print("Getting measurement: \(self.currentMeasurement)")
+                    self.gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
+                }
+            } else {
+                self.finishMeasurementFetch()
+            }
         }
-        currentMeasurement += 1
     }
     
     private func processMeasurementHeaderResult(_ measurementHeaderResult: MeasurementHeaderResult) {
-        let context = persistenceController.container.viewContext
-        let fetchRequest = Measurement.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "headerHash == %ld", measurementHeaderResult.hashValue, #keyPath(Measurement.headerHash))
-        
-        guard let objects = try? context.fetch(fetchRequest) else {
-            print("Core Data failed to fetch hash")
-            guard let error = error as? Error else {
-                print("Core Data failed to fetch hash")
-                return
-            }
-            print("Core Data failed to fetch: \(error.localizedDescription)")
-            // TODO: add sentry
-            // SentrySDK.capture(error: error)
-            return
-        }
-        
-        if objects.isEmpty {
-            gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16(self.currentMeasurement), completion: { measurementResult in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self.gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
-                        self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, measurementHeader: measurementHeaderResult, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
-                        print("SavingMeasurement")
-                        self.getMeasurentHeader()
+        DispatchQueue.main.async {
+            self.progress = 0.1 + ((Float(self.currentMeasurement + 1) - 0.5) / Float(self.measurementsCount + 1)) * 0.9
+            let context = self.persistenceController.container.viewContext
+            
+            let isObjectNew = {
+                guard let savedDate = UserDefaults.lastSyncedDateKey else { return true }
+                print("Saved date: \(savedDate), measurement header result date: \(measurementHeaderResult.date), is new: \(savedDate < measurementHeaderResult.date)")
+                return savedDate < measurementHeaderResult.date
+            }()
+            
+            if isObjectNew {
+                DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
+                    self.progress = 0.1 + (Float(self.currentMeasurement + 1) / Float(self.measurementsCount + 1)) * 0.9
+                    self.gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16(self.currentMeasurement), completion: { measurementResult in
+                        
+                        if measurementResult.changeSeriesEndFlag != .seriesCanceled {
+                            if let maxDateWhileFetching = self.maxDateWhileFetching {
+                                if maxDateWhileFetching < measurementResult.date {
+                                    self.maxDateWhileFetching = measurementResult.date
+                                }
+                            } else {
+                                self.maxDateWhileFetching = measurementResult.date
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
+                                self.gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
+                                    self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, measurementHeader: measurementHeaderResult, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
+                                    if self.healthKitAvailible {
+                                        HealthKitController.saveRecord(
+                                            heartRate: Double(measurementResult.pulse),
+                                            bloodPressureSystolic: Double(measurementResult.systolicBloodPressure),
+                                            bloodPressureDiastolic: Double(measurementResult.diastolicBloodPressure),
+                                            date: measurementResult.date)
+                                    }
+                                    print("Saved measurement: \(measurementResult)")
+                                    print("Measurement header: \(measurementHeaderResult)")
+                                    self.getMeasurentHeader()
+                                }, оnFailure: self.onRequestFail)
+                            }
+                        } else {
+                            print("Not Saved measurement: \(measurementResult)")
+                            print("Not Measurement header: \(measurementHeaderResult)")
+                            self.getMeasurentHeader()
+                        }
                     }, оnFailure: self.onRequestFail)
                 }
-            }, оnFailure: onRequestFail)
-        } else {
-            getMeasurentHeader()
-            print("Skipping already synchronized objects")
+            } else {
+                self.getMeasurentHeader()
+                print("Skipping already synchronized objects")
+            }
         }
     }
     
@@ -141,10 +210,10 @@ final class GemocardKit: ObservableObject {
                 HapticFeedbackController.shared.play(.light)
                 self.showSelectDevicesInfo = false
                 self.isConnected = true
-                self.getDeviceStatus()
                 self.navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
-            case .invalidCrc:
-                break;
+                self.getData()
+            case .failedToConnect:
+                self.throwAlert(ErrorAlerts.failedToConnect, .error)
             }
         }
     }
@@ -157,7 +226,7 @@ final class GemocardKit: ObservableObject {
         guard let savedGemocardUUID = UserDefaults.savedGemocardUUID else { return }
         
         if peripheral.identifier.uuidString == savedGemocardUUID {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.connect(peripheral: peripheral)
             }
         }
@@ -168,10 +237,11 @@ final class GemocardKit: ObservableObject {
     /// Call on app appear
     func initilizeGemocard() {
         startGemocardSDK()
+        startHealthKit()
     }
     
     func discover() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
             if !self.isConnected {
                 self.showSelectDevicesInfo = true
             }
@@ -193,20 +263,40 @@ final class GemocardKit: ObservableObject {
         gemocardSDK.disconnect()
     }
     
-    func action() {
-        gemocardSDK.testAction()
-    }
-    
     func getData() {
+        self.navigationBarTitleStatus = LocalizedStringKey("Fetching data...").stringValue()
+        self.fetchingDataWithGemocard = true
+        self.progress = 0.05
         DispatchQueue.main.async {
             self.gemocardSDK.getNumberOfMeasurements(completion:  { measurementsCount in
                 self.measurementsCount = measurementsCount
-                self.currentMeasurement = 1
-                print("Measurement count: \(measurementsCount)")
-                self.getMeasurentHeader()
+                self.progress = 0.1
+                self.currentMeasurement = 0
+                print("Measurement count: \(measurementsCount), current measurement: \(self.currentMeasurement)")
+                if measurementsCount == 0 {
+                    self.finishMeasurementFetch()
+                    return
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
+                    print("Getting measurement: \(self.currentMeasurement)")
+                    self.gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
+                }
             }, оnFailure: self.onRequestFail)
         }
     }
+    
+    func eraseMemory() {
+        gemocardSDK.eraseMemory { flag in
+            print("Done")
+            if !flag {
+                self.throwAlert(ErrorAlerts.failedToCompleteOperation, .error)
+            }
+        } оnFailure: { failureCode in
+            self.throwAlert(ErrorAlerts.failedToCompleteOperation, .error)
+        }
+    }
+    
+    // MARK: - testing
     
     func getDeviceStatus() {
         self.gemocardSDK.getDeviceStatus() { deviceStatus, deviceOperatingMode, cuffPressure in
@@ -214,14 +304,6 @@ final class GemocardKit: ObservableObject {
         } оnFailure: { failureCode in
             print("Error: \(failureCode)")
         }
-    }
-    
-    func startMeasurement() {
-        gemocardSDK.startMeasurementForUser(user: 1)
-    }
-    
-    func setDateTime() {
-        gemocardSDK.setDateTime()
     }
     
     func getDateTime() {
@@ -243,7 +325,7 @@ final class GemocardKit: ObservableObject {
     
     
     func getHeaderResultsNumberOfPreviousMeasurement() {
-        gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: 1) { measurementResult in
+        gemocardSDK.getHeaderResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt8(debugMeasurementNumber)!) { measurementResult in
             print("Mesuremnt result: \(measurementResult)")
         } оnFailure: { failureCode in
             print("Error: \(failureCode)")
@@ -251,8 +333,9 @@ final class GemocardKit: ObservableObject {
     }
     
     func getResultsNumberOfPreviousECG() {
-        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: 1) { ECGData, ECGStatusData  in
-            print("Got data: \(ECGData.count)")
+        gemocardSDK.getResultsNumberOfPreviousECG(numberOfPreviousECG: UInt8(debugMeasurementNumber)!) { ECGData, ECGStatusData  in
+//            print("\(ECGData)")
+            print("Got data: \(String(describing: ECGData?.count))")
         } оnFailure: { failureCode in
             print("Error: \(failureCode)")
         }
@@ -262,21 +345,158 @@ final class GemocardKit: ObservableObject {
         DispatchQueue.main.async {
             self.gemocardSDK.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: numberOfPreviousMeasurement) { measurementResult in
                 print("Mesuremnt result: \(measurementResult)")
-                self.currentMeasurement += 1
-                if self.currentMeasurement <= self.measurementsCount {
-                    self.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: UInt16(self.currentMeasurement))
-                }
+                
             } оnFailure: { failureCode in
                 print("Error: \(failureCode)")
             }
         }
     }
+
+    // MARK: - Public functions to use in views
     
-    func requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG() {
-        gemocardSDK.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG() { packetCount in
-            print("Packet count: \(packetCount)")
-        } onFailure: { failureCode in
-            print("Error: \(failureCode)")
+    func sendDataToMedsenger() {
+        DispatchQueue.main.async {
+            self.sendingToMedsengerStatus = 1
+            
+            let objects: [Measurement]? = {
+                let context = self.persistenceController.container.viewContext
+                if let recentFetchDate = UserDefaults.lastMedsengerUploadedDate {
+                    let fetchRequest: NSFetchRequest<Measurement> = Measurement.fetchRequest()
+                    fetchRequest.predicate = NSPredicate(format: "%@ <= %K", recentFetchDate as NSDate, #keyPath(Measurement.date))
+                    
+                    do {
+                        return try context.fetch(fetchRequest)
+                    } catch {
+                        self.sendingToMedsengerStatus = 0
+                        print("Core Data failed to fetch: \(error.localizedDescription)")
+//                        SentrySDK.capture(error: error)
+                        return nil
+                    }
+                } else {
+                    let fetchRequest: NSFetchRequest<Measurement> = Measurement.fetchRequest()
+                    
+                    do {
+                        return try context.fetch(fetchRequest)
+                    } catch {
+                        self.sendingToMedsengerStatus = 0
+                        print("Core Data failed to fetch: \(error.localizedDescription)")
+//                        SentrySDK.capture(error: error)
+                        return nil
+                    }
+                }
+            }()
+ 
+            guard let records = objects else {
+                self.sendingToMedsengerStatus = 0
+                print("Failed to fetch data, objects are nil!")
+                return
+            }
+            
+            if records.isEmpty {
+                self.sendingToMedsengerStatus = 0
+                self.throwAlert(ErrorAlerts.emptyDataToUploadToMedsenger)
+                return
+            }
+            
+            guard let medsengerContractId = UserDefaults.medsengerContractId, let medsengerAgentToken = UserDefaults.medsengerAgentToken else {
+                self.sendingToMedsengerStatus = 0
+                self.throwAlert(ErrorAlerts.medsengerTokenIsEmpty)
+                return
+            }
+            
+            for record in records {
+                let data = [
+                    "contract_id": medsengerContractId,
+                    "agent_token": medsengerAgentToken,
+                    "timestamp": record.date!.timeIntervalSince1970,
+                    "measurement": [
+//                        "FVC": record.fvc,
+//                        "FEV1": record.fev1,
+//                        "FEV1%": record.fev1_fvc,
+//                        "PEF": record.pef,
+//                        "FEF25": record.fef25,
+//                        "FEF50": record.fef50,
+//                        "FEF75": record.fef75,
+//                        "FEF2575": record.fef2575,
+//                        "FEV05": record.fef25,
+//                        "FEV3": record.fev3,
+//                        "FEV6": record.fev6,
+//                        "PEFT": record.peft,
+//                        "EVOL": record.evol
+                    ]
+                ] as [String : Any]
+                
+                guard let jsonData = try? JSONSerialization.data(withJSONObject: data) else {
+                    self.sendingToMedsengerStatus = 0
+                    print("Failed to serialize data with JSON")
+                    return
+                }
+                
+                guard let url = URL(string: "https://gemocard.medsenger.ru/api/receive") else {
+                    self.sendingToMedsengerStatus = 0
+                    print("Invalid medsenger url!")
+                    return
+                }
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.httpBody = jsonData
+                
+                URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
+                    DispatchQueue.main.async {
+                        guard error == nil else {
+                            self.sendingToMedsengerStatus = 0
+                            if (error as! URLError).code == URLError.notConnectedToInternet {
+                                self.throwAlert(ErrorAlerts.failedToConnectToNetwork)
+                            } else {
+                                print("Failed to make HTTP reuest to medsenger: \(error!.localizedDescription)")
+//                                SentrySDK.capture(error: error!)
+                            }
+                            return
+                        }
+                        if self.sendingToMedsengerStatus == records.count {
+                            UserDefaults.lastMedsengerUploadedDate = Date()
+                            self.throwAlert(ErrorAlerts.dataSuccessfullyUploadedToMedsenger)
+                            self.sendingToMedsengerStatus = 0
+                        } else {
+                            self.sendingToMedsengerStatus += 1
+                        }
+                    }
+                }).resume()
+            }
+        }
+    }
+    
+    func resetMedsengerCredentials() {
+        DispatchQueue.main.async {
+            UserDefaults.medsengerAgentToken = nil
+            UserDefaults.medsengerContractId = nil
+            self.presentUploadToMedsenger = false
+        }
+    }
+    
+    func updatePropertiesFromDeeplink(url: URL) {
+        DispatchQueue.main.async {
+            guard let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+            guard let queryItems = urlComponents.queryItems else { return }
+            
+            for queryItem in queryItems {
+                switch queryItem.name {
+                case "contract_id":
+                    guard let medsengerContractIdValue = queryItem.value else {
+                        print("Empty medsenger contract id")
+                        return
+                    }
+                    UserDefaults.medsengerContractId = Int(medsengerContractIdValue)
+                case "agent_token":
+                    UserDefaults.medsengerAgentToken = queryItem.value
+                default:
+                    print("Deeplink url query item \(queryItem.name): \(queryItem.value ?? "Nil value")")
+                }
+                self.presentUploadToMedsenger = true
+            }
         }
     }
 }

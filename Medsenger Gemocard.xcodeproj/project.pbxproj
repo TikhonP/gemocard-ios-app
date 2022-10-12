@@ -16,6 +16,7 @@
 		436ADB9928F06F3A003361E7 /* GetECGController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9828F06F3A003361E7 /* GetECGController.swift */; };
 		436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */; };
 		436ADB9D28F0819F003361E7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9C28F0819F003361E7 /* Models.swift */; };
+		439FDB3028F71BFF00AC2ECA /* HealthKitController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439FDB2F28F71BFF00AC2ECA /* HealthKitController.swift */; };
 		43A1846E28F45CA700AAA915 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1846D28F45CA700AAA915 /* PersistenceController.swift */; };
 		43A1847128F45D2400AAA915 /* Gemocard.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 43A1846F28F45D2400AAA915 /* Gemocard.xcdatamodeld */; };
 		43A1847328F5E41000AAA915 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A1847228F5E41000AAA915 /* SettingsView.swift */; };
@@ -46,6 +47,8 @@
 		436ADB9828F06F3A003361E7 /* GetECGController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetECGController.swift; sourceTree = "<group>"; };
 		436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncQueue.swift; sourceTree = "<group>"; };
 		436ADB9C28F0819F003361E7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		439FDB2E28F715DE00AC2ECA /* Medsenger Gemocard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Medsenger Gemocard.entitlements"; sourceTree = "<group>"; };
+		439FDB2F28F71BFF00AC2ECA /* HealthKitController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitController.swift; sourceTree = "<group>"; };
 		43A1846D28F45CA700AAA915 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		43A1847028F45D2400AAA915 /* Gemocard.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Gemocard.xcdatamodel; sourceTree = "<group>"; };
 		43A1847228F5E41000AAA915 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		434EE09C28EC49B500591830 = {
 			isa = PBXGroup;
 			children = (
+				439FDB2E28F715DE00AC2ECA /* Medsenger Gemocard.entitlements */,
 				43E0E67428EE0A260010A363 /* README.md */,
 				43E0E66F28EDB4360010A363 /* Medsenger-Gemocard-Info.plist */,
 				434EE0A728EC49B500591830 /* App */,
@@ -143,6 +147,7 @@
 				43A1847828F5E6EB00AAA915 /* View+NavigationBarTitle.swift */,
 				43A1847F28F5E94300AAA915 /* HapticFeedbackController.swift */,
 				43A1848128F5E95D00AAA915 /* Alerts.swift */,
+				439FDB2F28F71BFF00AC2ECA /* HealthKitController.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -255,6 +260,7 @@
 				436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */,
 				43A1847528F5E42200AAA915 /* ConnectView.swift in Sources */,
 				43E0E67328EDDA4F0010A363 /* Data+.swift in Sources */,
+				439FDB3028F71BFF00AC2ECA /* HealthKitController.swift in Sources */,
 				43A1847928F5E6EB00AAA915 /* View+NavigationBarTitle.swift in Sources */,
 				434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */,
 				43A1848028F5E94300AAA915 /* HapticFeedbackController.swift in Sources */,
@@ -400,6 +406,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
@@ -410,6 +417,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Medsenger Gemocard";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "App uses Bluetooth to connect to Gemocard";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "App uses HealthKit to add blood pressure and heart rate data";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App uses HealthKit to add blood pressure and heart rate data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -434,6 +443,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
@@ -444,6 +454,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Medsenger Gemocard";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "App uses Bluetooth to connect to Gemocard";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "App uses HealthKit to add blood pressure and heart rate data";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App uses HealthKit to add blood pressure and heart rate data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -2,26 +2,25 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Measurement" representedClassName="Measurement" syncable="YES" codeGenerationType="class">
         <attribute name="arrhythmiaStatus" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" customClassName="ArrhythmiaStatus"/>
-        <attribute name="arterialPressureWavefromNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="arterialPressureWavefromNumber" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="changeSeriesEndFlag" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="deviceOperatingMode" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="diastolicBloodPressure" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="ecgData" attributeType="Transformable" valueTransformerName="" customClassName="[UInt32]"/>
-        <attribute name="ecgStatusData" attributeType="Transformable" valueTransformerName="" customClassName="[UInt8]"/>
-        <attribute name="headerHash" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="ecgData" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[UInt32]"/>
+        <attribute name="ecgStatusData" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[UInt8]"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="idSeriesOfMeasurement" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="maxMeasurementLength" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="maxMeasurementLength" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="measChan" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="measMode" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="numberOfSuccessfulMeasurment" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="originallyPlannedNumberOfRevisionsInSeries" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="period" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="pointerToBeginningOfCardiogramInMemory" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="pointerToBeginningOfCardiogramInMemory" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pulse" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="rhythmDisturbances" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="sampleRate" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sampleRate" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="systolicBloodPressure" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="userId" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>

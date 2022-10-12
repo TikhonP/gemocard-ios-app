@@ -27,6 +27,7 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
+                progressView
                 inlineAlerts
 //                testFormButtons
                 if measurements.isEmpty {
@@ -36,6 +37,7 @@ struct MainView: View {
                 }
             }
             .transition(.slide)
+            .animation(.easeInOut(duration: 0.3), value: gemocardKit.progress)
             .animation(.easeInOut(duration: 0.3), value: gemocardKit.showBluetoothIsOffWarning)
             .animation(.easeInOut(duration: 0.3), value: gemocardKit.fetchingDataWithGemocard)
             .animation(.easeInOut(duration: 0.3), value: gemocardKit.showSelectDevicesInfo)
@@ -45,6 +47,7 @@ struct MainView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     EditButton()
                 }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if gemocardKit.isBluetoothOn {
                         if !gemocardKit.isConnected {
@@ -70,6 +73,31 @@ struct MainView: View {
                         }
                     }
                 }
+                
+                ToolbarItemGroup(placement: .bottomBar) {
+                    if !measurements.isEmpty && gemocardKit.presentUploadToMedsenger {
+                        HStack {
+                            if gemocardKit.sendingToMedsengerStatus != 0 {
+                                ProgressView()
+                            }
+                            Button("Upload to Medsenger", action: {
+                                HapticFeedbackController.shared.play(.heavy)
+                                gemocardKit.sendDataToMedsenger()
+                            })
+                        }
+                    }
+                    Spacer()
+                    if gemocardKit.isConnected && !gemocardKit.fetchingDataWithGemocard {
+                        Button(action: {
+                            HapticFeedbackController.shared.play(.medium)
+                            gemocardKit.getData()
+                        }, label: { Image(systemName: "arrow.clockwise.circle") })
+                    }
+                    if !(!measurements.isEmpty && gemocardKit.presentUploadToMedsenger) {
+                        Spacer()
+                    }
+                }
+                
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -94,6 +122,16 @@ struct MainView: View {
                     .padding(.trailing, 1)
             }
             Text(gemocardKit.navigationBarTitleStatus)
+        }
+    }
+    
+    private var progressView: some View {
+        ZStack {
+            if gemocardKit.fetchingDataWithGemocard {
+                ProgressView(value: gemocardKit.progress, total: 1)
+                    .padding()
+                Spacer()
+            }
         }
     }
     
@@ -148,35 +186,6 @@ struct MainView: View {
                     }
                 }
                 .onDelete(perform: deleteMeasurements)
-            }
-        }
-    }
-    
-    private var testFormButtons: some View {
-        ZStack {
-            Form {
-                Section {
-                    Button(action: gemocardKit.action) {
-                        Text("lolkek")
-                    }
-                }
-                
-                Section {
-                    Button(action: gemocardKit.getDeviceStatus) { Text("Получить статус") }
-                    Button(action: gemocardKit.startMeasurement) { Text("Начать измерение") }
-                    Button(action: gemocardKit.setDateTime) { Text("Настроить время") }
-                    Button(action: gemocardKit.getDateTime) { Text("Получить время устройства") }
-                    Button(action: gemocardKit.getNumberOfMeasurements) { Text("Получть количество измерений") }
-                    Button(action: gemocardKit.getData) { Text("Загрузить данные") }
-                    Button(action: gemocardKit.getHeaderResultsNumberOfPreviousMeasurement) { Text("Загрузить N хедер измерение") }
-                    Button(action: {
-                        gemocardKit.getResultsNumberOfPreviousMeasurement(numberOfPreviousMeasurement: 1)
-                    }) {
-                        Text("Загрузить N измерение")
-                    }
-                    Button(action: gemocardKit.getResultsNumberOfPreviousECG) { Text("Загрузить N ЭКГ") }
-                    Button(action: gemocardKit.requestForSetNumberOfPacketsOf98bytesInResponseWhenRequestingNofPreviousECG) { Text("Узнать устанорвленное количество пакетов по 98 байт") }
-                }
             }
         }
     }

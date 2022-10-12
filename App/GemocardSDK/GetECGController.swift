@@ -98,8 +98,7 @@ class GetECGController {
         }
         let packetsCount = decodeFirstPacket(data: data)
         if packetsCount < 1 {
-            print("Empty packet count")
-            comletion([], [])
+            comletion(nil, nil)
             resetExchangeCallback()
             return
         }
@@ -118,8 +117,8 @@ class GetECGController {
         resetExchangeCallback()
     }
     
-    public func onDataReceived(data: [UInt8]) {
-        for b in data {
+    public func onDataReceived(bytes: [UInt8]) {
+        for b in bytes {
             incomingDataQueue.enqueue(b)
         }
     }

@@ -30,4 +30,25 @@ class ErrorAlerts: NSObject {
         description: LocalizedStringKey("Try to reload application.").stringValue())
     static let disconnected = ErrorInfo(
         title: LocalizedStringKey("Device disconnected").stringValue(), description: "")
+    static let failedToFetchDataError = ErrorInfo(
+        title: LocalizedStringKey("Oops! Failed to fetch data" ).stringValue(),
+        description: LocalizedStringKey("This can happen if the spirometer has a dead battery. If it's not, maybe it's a random error, try again.").stringValue())
+    static let failedToConnect = ErrorInfo(
+        title: LocalizedStringKey("Oops! Failed to connect" ).stringValue(),
+        description: LocalizedStringKey("Try to reload device.").stringValue())
+    static let emptyDataToUploadToMedsenger = ErrorInfo(
+        title: LocalizedStringKey("No new records").stringValue(),
+        description: LocalizedStringKey("All data already fetched with Medsenger.").stringValue())
+    static let medsengerTokenIsEmpty = ErrorInfo(
+        title: LocalizedStringKey("Authorization in Medsenger is not successful").stringValue(),
+        description: LocalizedStringKey("Go to the Medsenger app for authorization").stringValue())
+    static let dataSuccessfullyUploadedToMedsenger = ErrorInfo(
+        title: LocalizedStringKey("Done!").stringValue(),
+        description: LocalizedStringKey("The data successfully uploaded to Medsenger.").stringValue())
+    static let failedToConnectToNetwork = ErrorInfo(
+        title: LocalizedStringKey("Device offline").stringValue(),
+        description: LocalizedStringKey("Turn off Airplane Mode or connect to Wi-Fi.").stringValue())
+    static let failedToCompleteOperation = ErrorInfo(
+        title: LocalizedStringKey("Oops! Failed to Complete Operation").stringValue(),
+        description: LocalizedStringKey("Try to reload device.").stringValue())
 }

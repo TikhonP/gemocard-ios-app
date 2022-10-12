@@ -145,7 +145,7 @@ class DataSerializer {
     
     /// Стереть память прибора
     /// - Returns: serialized Data object
-    class func eraseInstrumentDevice() -> Data {
+    class func eraseMemory() -> Data {
         let bytes: [UInt8] = [0xAA, 0x03, 0x11, 0]
         return DataSerializer.addCrc(bytes)
     }
