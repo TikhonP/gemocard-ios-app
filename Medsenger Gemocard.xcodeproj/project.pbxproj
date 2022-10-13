@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4325FE7628F849450038497E /* ECGfilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7528F849450038497E /* ECGfilter.swift */; };
+		4325FE7828F849A20038497E /* FilterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7728F849A20038497E /* FilterFactory.swift */; };
+		4325FE7A28F849FB0038497E /* FilterFactory1000.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7928F849FB0038497E /* FilterFactory1000.swift */; };
+		4325FE7C28F84AAC0038497E /* CompensatingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7B28F84AAC0038497E /* CompensatingFilter.swift */; };
+		4325FE7E28F84E7F0038497E /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7D28F84E7F0038497E /* Filter.swift */; };
+		4325FE8028F84F470038497E /* FilterFIR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7F28F84F470038497E /* FilterFIR.swift */; };
+		4325FE8228F8584F0038497E /* FilterFactory418.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE8128F8584F0038497E /* FilterFactory418.swift */; };
+		4325FE8428F859130038497E /* FilterFactory500.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE8328F859130038497E /* FilterFactory500.swift */; };
 		434EE0A928EC49B500591830 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0A828EC49B500591830 /* App.swift */; };
 		434EE0AB28EC49B500591830 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0AA28EC49B500591830 /* RootView.swift */; };
 		434EE0AD28EC49B700591830 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 434EE0AC28EC49B700591830 /* Assets.xcassets */; };
@@ -37,6 +45,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4325FE7328F82DAD0038497E /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4325FE7528F849450038497E /* ECGfilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECGfilter.swift; sourceTree = "<group>"; };
+		4325FE7728F849A20038497E /* FilterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory.swift; sourceTree = "<group>"; };
+		4325FE7928F849FB0038497E /* FilterFactory1000.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory1000.swift; sourceTree = "<group>"; };
+		4325FE7B28F84AAC0038497E /* CompensatingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompensatingFilter.swift; sourceTree = "<group>"; };
+		4325FE7D28F84E7F0038497E /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
+		4325FE7F28F84F470038497E /* FilterFIR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFIR.swift; sourceTree = "<group>"; };
+		4325FE8128F8584F0038497E /* FilterFactory418.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory418.swift; sourceTree = "<group>"; };
+		4325FE8328F859130038497E /* FilterFactory500.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory500.swift; sourceTree = "<group>"; };
 		434EE0A528EC49B500591830 /* Medsenger Gemocard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Medsenger Gemocard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		434EE0A828EC49B500591830 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		434EE0AA28EC49B500591830 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -81,6 +98,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4325FE7428F848EE0038497E /* ECGfilters */ = {
+			isa = PBXGroup;
+			children = (
+				4325FE7528F849450038497E /* ECGfilter.swift */,
+				4325FE7728F849A20038497E /* FilterFactory.swift */,
+				4325FE7928F849FB0038497E /* FilterFactory1000.swift */,
+				4325FE7B28F84AAC0038497E /* CompensatingFilter.swift */,
+				4325FE7D28F84E7F0038497E /* Filter.swift */,
+				4325FE7F28F84F470038497E /* FilterFIR.swift */,
+				4325FE8128F8584F0038497E /* FilterFactory418.swift */,
+				4325FE8328F859130038497E /* FilterFactory500.swift */,
+			);
+			path = ECGfilters;
+			sourceTree = "<group>";
+		};
 		434EE09C28EC49B500591830 = {
 			isa = PBXGroup;
 			children = (
@@ -127,6 +159,7 @@
 		434EE0B628EC4BAD00591830 /* GemocardSDK */ = {
 			isa = PBXGroup;
 			children = (
+				4325FE7428F848EE0038497E /* ECGfilters */,
 				434EE0BA28EC4C8600591830 /* GemocardSDK.swift */,
 				43E0E67028EDD52D0010A363 /* DataSerializer.swift */,
 				43E0E67728EEDC410010A363 /* GemocardDeviceController.swift */,
@@ -217,6 +250,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 434EE09C28EC49B500591830;
 			productRefGroup = 434EE0A628EC49B500591830 /* Products */;
@@ -248,7 +282,9 @@
 			files = (
 				436ADB9928F06F3A003361E7 /* GetECGController.swift in Sources */,
 				43A1846E28F45CA700AAA915 /* PersistenceController.swift in Sources */,
+				4325FE7E28F84E7F0038497E /* Filter.swift in Sources */,
 				43E0E67828EEDC410010A363 /* GemocardDeviceController.swift in Sources */,
+				4325FE8428F859130038497E /* FilterFactory500.swift in Sources */,
 				43A1848428F5ECD800AAA915 /* RecordView.swift in Sources */,
 				43E0E67A28EF35DD0010A363 /* ComplitionType.swift in Sources */,
 				43A1847128F45D2400AAA915 /* Gemocard.xcdatamodeld in Sources */,
@@ -258,16 +294,22 @@
 				43A1847328F5E41000AAA915 /* SettingsView.swift in Sources */,
 				436ADB9D28F0819F003361E7 /* Models.swift in Sources */,
 				436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */,
+				4325FE8228F8584F0038497E /* FilterFactory418.swift in Sources */,
 				43A1847528F5E42200AAA915 /* ConnectView.swift in Sources */,
 				43E0E67328EDDA4F0010A363 /* Data+.swift in Sources */,
+				4325FE7C28F84AAC0038497E /* CompensatingFilter.swift in Sources */,
 				439FDB3028F71BFF00AC2ECA /* HealthKitController.swift in Sources */,
 				43A1847928F5E6EB00AAA915 /* View+NavigationBarTitle.swift in Sources */,
 				434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */,
 				43A1848028F5E94300AAA915 /* HapticFeedbackController.swift in Sources */,
+				4325FE7828F849A20038497E /* FilterFactory.swift in Sources */,
+				4325FE7A28F849FB0038497E /* FilterFactory1000.swift in Sources */,
 				43A1847728F5E5EB00AAA915 /* LocalizedString+.swift in Sources */,
 				434EE0AB28EC49B500591830 /* RootView.swift in Sources */,
+				4325FE7628F849450038497E /* ECGfilter.swift in Sources */,
 				434EE0A928EC49B500591830 /* App.swift in Sources */,
 				43A1848228F5E95D00AAA915 /* Alerts.swift in Sources */,
+				4325FE8028F84F470038497E /* FilterFIR.swift in Sources */,
 				43A1848628F5ED0700AAA915 /* RecordLabel.swift in Sources */,
 				43E0E67128EDD52D0010A363 /* DataSerializer.swift in Sources */,
 			);
@@ -280,6 +322,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				43A1847D28F5E8D200AAA915 /* en */,
+				4325FE7328F82DAD0038497E /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -291,6 +334,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -351,6 +395,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -408,7 +453,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;
@@ -432,9 +477,12 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.medsenger.gemocard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -445,7 +493,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;
@@ -469,9 +517,12 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.medsenger.gemocard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

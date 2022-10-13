@@ -138,7 +138,7 @@ struct MainView: View {
     private var inlineAlerts: some View {
         ZStack {
             if gemocardKit.showBluetoothIsOffWarning {
-                Text("To connect the spirometer, turn on the bluetooth and give the app permission to use it.")
+                Text("To connect the tonometer, turn on the bluetooth and give the app permission to use it.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
@@ -147,7 +147,7 @@ struct MainView: View {
             if gemocardKit.showSelectDevicesInfo {
                 HStack(alignment: .top) {
                     Spacer()
-                    Text("Click here and select the spirometer to connect.")
+                    Text("Click here and select the tonometer to connect.")
                         .font(.body)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -165,7 +165,7 @@ struct MainView: View {
             Text("No measurements recorded")
                 .font(.title2)
                 .fontWeight(.bold)
-            Text("Take measurements with a spirometer so they appear here.")
+            Text("Take measurements with a tonometer so they appear here.")
                 .font(.body)
                 .foregroundColor(Color.gray)
                 .multilineTextAlignment(.center)

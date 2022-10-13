@@ -64,7 +64,7 @@ class GemocardDeviceController {
     
     /// Initilize ``GemocardDeviceController`` store all callbacks
     /// - Parameters:
-    ///   - writeValueCallback: function gets `Data` object and sends it to spirometer
+    ///   - writeValueCallback: function gets `Data` object and sends it to tonometer
     init(writeValueCallback: @escaping WriteValueCallback) {
         self.writeValueCallback = writeValueCallback
     }

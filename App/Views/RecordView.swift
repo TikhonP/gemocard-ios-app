@@ -68,8 +68,14 @@ struct RecordView: View {
         }
     }
      
-    func data() -> [UInt32] {
-        return Array(measurement.ecgData![3000..<3100])
+    func data() -> [Double] {
+        guard let ecgData = measurement.ecgData else { return [] }
+        let sampleRate = SampleRate(rawValue: UInt8(measurement.sampleRate)) ?? .unknown
+        let filterFactory = ECGfilter.getFilterFactory(sampleRate)!
+        let filtersSet = ECGfilter.getReportDafultPdfFilters()
+        let filters = ECGfilter.getFilterComposition(filterFactory: filterFactory, filterMode: filtersSet)
+        let data = ECGfilter.applyFilters(bytes: ecgData, filters: filters)
+        return Array(data[1000..<1200])
     }
 }
 

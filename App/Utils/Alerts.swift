@@ -32,7 +32,7 @@ class ErrorAlerts: NSObject {
         title: LocalizedStringKey("Device disconnected").stringValue(), description: "")
     static let failedToFetchDataError = ErrorInfo(
         title: LocalizedStringKey("Oops! Failed to fetch data" ).stringValue(),
-        description: LocalizedStringKey("This can happen if the spirometer has a dead battery. If it's not, maybe it's a random error, try again.").stringValue())
+        description: LocalizedStringKey("This can happen if the tonometer has a dead battery. If it's not, maybe it's a random error, try again.").stringValue())
     static let failedToConnect = ErrorInfo(
         title: LocalizedStringKey("Oops! Failed to connect" ).stringValue(),
         description: LocalizedStringKey("Try to reload device.").stringValue())

@@ -37,7 +37,7 @@ struct ConnectView: View {
                 }
             }
             .padding(.bottom, 5)
-            Text("Select your Contec Spirometer from the list below, the saved devices will be connected automatically.")
+            Text("Select your Acsma Gemocard from the list below, the saved devices will be connected automatically.")
                 .font(.body)
                 .foregroundColor(Color.gray)
                 .multilineTextAlignment(.center)
