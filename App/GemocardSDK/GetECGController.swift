@@ -28,6 +28,8 @@ class GetECGController {
     private var ECGdata: [UInt32] = []
     private var ECGStatusData: [UInt8] = []
     
+    private var allData: [UInt8] = []
+    
     init(
         ECGnumber: UInt8,
         resetExchangeCallback: @escaping () -> Void,
@@ -70,14 +72,25 @@ class GetECGController {
         return (UInt32(MSBs) << (8 * 2)) | (UInt32(MidBs) << 8) | UInt32(LSBs)
     }
     
+    private func process25bytesPacket(bytes: [UInt8]) {
+        ECGStatusData.append(bytes[0])
+        var singleDot: [UInt8] = []
+        for b in bytes[1...] {
+            singleDot.append(b)
+            if singleDot.count == 3 {
+                let value = threeBytesToInt(MSBs: singleDot[0], MidBs: singleDot[1], LSBs: singleDot[2])
+                ECGdata.append(UInt32(value))
+                singleDot = []
+            }
+        }
+    }
+    
     private func process98bytePacket(bytes: [UInt8]) {
         for b in bytes {
+            allData.append(b)
             packet.append(b)
-            if packet.count == 4 {
-                let value = threeBytesToInt(MSBs: packet[0], MidBs: packet[1], LSBs: packet[2])
-//                let status = BrokenElectrodesAndPacemaker(rawValue: packet[3])
-                ECGdata.append(value)
-                ECGStatusData.append(packet[3])
+            if packet.count == 25 {
+                process25bytesPacket(bytes: packet)
                 packet = []
             }
         }
@@ -111,6 +124,7 @@ class GetECGController {
             }
             process98bytePacket(bytes: Array(data[2 ..< 100]))
         }
+        print(allData)
         comletion(ECGdata, ECGStatusData)
         resetExchangeCallback()
     }

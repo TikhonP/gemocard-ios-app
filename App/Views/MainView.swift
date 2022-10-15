@@ -180,7 +180,11 @@ struct MainView: View {
             Section(header: Text("Measurements")) {
                 ForEach(measurements) { measurement in
                     NavigationLink {
-                        RecordView(measurement: measurement)
+                        if #available(iOS 16.0, *) {
+                            RecordView(measurement: measurement)
+                        } else {
+                            Text("Kek")
+                        }
                     } label: {
                         RecordLabel(measurement: measurement)
                     }

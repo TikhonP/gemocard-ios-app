@@ -136,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */,
+				4325FE7428F848EE0038497E /* ECGfilters */,
 				43A1848728F5EDB400AAA915 /* Views */,
 				43A1846C28F45C9400AAA915 /* CoreData */,
 				434EE0B728EC4BC600591830 /* Utils */,
@@ -159,7 +160,6 @@
 		434EE0B628EC4BAD00591830 /* GemocardSDK */ = {
 			isa = PBXGroup;
 			children = (
-				4325FE7428F848EE0038497E /* ECGfilters */,
 				434EE0BA28EC4C8600591830 /* GemocardSDK.swift */,
 				43E0E67028EDD52D0010A363 /* DataSerializer.swift */,
 				43E0E67728EEDC410010A363 /* GemocardDeviceController.swift */,
@@ -223,6 +223,8 @@
 			dependencies = (
 			);
 			name = "Medsenger Gemocard";
+			packageProductDependencies = (
+			);
 			productName = "Medsenger Gemocard";
 			productReference = 434EE0A528EC49B500591830 /* Medsenger Gemocard.app */;
 			productType = "com.apple.product-type.application";
@@ -253,6 +255,8 @@
 				ru,
 			);
 			mainGroup = 434EE09C28EC49B500591830;
+			packageReferences = (
+			);
 			productRefGroup = 434EE0A628EC49B500591830 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

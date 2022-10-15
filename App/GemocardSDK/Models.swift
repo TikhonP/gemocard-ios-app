@@ -74,6 +74,10 @@ struct MeasurementHeaderResult {
         let dateComponents = DateComponents(timeZone: TimeZone.current, year: year, month: month, day: day, hour: hour, minute: minute, second: second)
         return calendar.date(from: dateComponents)!
     }
+    
+    var customHashValue: Int {
+        return Int(date.timeIntervalSince1970)
+    }
 }
 
 // MARK: - Measurement Model

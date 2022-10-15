@@ -64,6 +64,7 @@ class PersistenceController: ObservableObject {
         measurementModel.arterialPressureWavefromNumber = measurementHeader.arterialPressureWavefromNumber
         measurementModel.userId = measurementHeader.userId
         measurementModel.pointerToBeginningOfCardiogramInMemory = measurementHeader.pointerToBeginningOfCardiogramInMemory
+        measurementModel.headerHash = Int64(measurementHeader.customHashValue)
         
         save(context: context)
     }

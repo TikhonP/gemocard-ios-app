@@ -115,6 +115,26 @@ final class GemocardKit: ObservableObject {
         }
     }
     
+    private func checkIfMeasurementIsNew(_ measurementHeaderResult: MeasurementHeaderResult) -> Bool {
+        let context = persistenceController.container.viewContext
+        let fetchRequest = Measurement.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "headerHash == %ld", measurementHeaderResult.customHashValue, #keyPath(Measurement.headerHash))
+        
+        guard let objects = try? context.fetch(fetchRequest) else {
+            print("Core Data failed to fetch hash")
+            guard let error = error as? Error else {
+                print("Core Data failed to fetch hash")
+                return false
+            }
+            print("Core Data failed to fetch: \(error.localizedDescription)")
+            // TODO: add sentry
+            // SentrySDK.capture(error: error)
+            return false
+        }
+        
+        return objects.isEmpty
+    }
+    
     private func processMeasurementHeaderResult(_ measurementHeaderResult: MeasurementHeaderResult) {
         DispatchQueue.main.async {
             self.progress = 0.1 + ((Float(self.currentMeasurement + 1) - 0.5) / Float(self.measurementsCount + 1)) * 0.9
@@ -126,7 +146,7 @@ final class GemocardKit: ObservableObject {
                 return savedDate < measurementHeaderResult.date
             }()
             
-            if isObjectNew {
+            if isObjectNew && self.checkIfMeasurementIsNew(measurementHeaderResult) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
                     self.progress = 0.1 + (Float(self.currentMeasurement + 1) / Float(self.measurementsCount + 1)) * 0.9
                     self.gemocardSDK.getMeasurement(measurementNumber: UInt16(self.currentMeasurement), completion: { measurementResult in
@@ -308,7 +328,7 @@ final class GemocardKit: ObservableObject {
                     } catch {
                         self.sendingToMedsengerStatus = 0
                         print("Core Data failed to fetch: \(error.localizedDescription)")
-//                        SentrySDK.capture(error: error)
+                        //                        SentrySDK.capture(error: error)
                         return nil
                     }
                 } else {
@@ -319,12 +339,12 @@ final class GemocardKit: ObservableObject {
                     } catch {
                         self.sendingToMedsengerStatus = 0
                         print("Core Data failed to fetch: \(error.localizedDescription)")
-//                        SentrySDK.capture(error: error)
+                        //                        SentrySDK.capture(error: error)
                         return nil
                     }
                 }
             }()
- 
+            
             guard let records = objects else {
                 self.sendingToMedsengerStatus = 0
                 print("Failed to fetch data, objects are nil!")
@@ -349,9 +369,9 @@ final class GemocardKit: ObservableObject {
                     "agent_token": medsengerAgentToken,
                     "timestamp": record.date!.timeIntervalSince1970,
                     "measurement": [
-//                        "FVC": record.fvc,
-//                        "FEV1": record.fev1,
-//                        "FEV1%": record.fev1_fvc,
+                        //                        "FVC": record.fvc,
+                        //                        "FEV1": record.fev1,
+                        //                        "FEV1%": record.fev1_fvc,
                     ]
                 ] as [String : Any]
                 
@@ -381,7 +401,7 @@ final class GemocardKit: ObservableObject {
                                 self.throwAlert(ErrorAlerts.failedToConnectToNetwork)
                             } else {
                                 print("Failed to make HTTP reuest to medsenger: \(error!.localizedDescription)")
-//                                SentrySDK.capture(error: error!)
+                                //                                SentrySDK.capture(error: error!)
                             }
                             return
                         }

@@ -23,6 +23,7 @@ struct RecordLabel: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            Spacer()
             HStack {
                 Text(measurementHeader)
                     .font(.headline)
@@ -34,7 +35,19 @@ struct RecordLabel: View {
                         Image(systemName: "icloud.slash")
                     }
                 }
+                if measurement.ecgData != nil {
+                    Image(systemName: "waveform.path.ecg.rectangle")
+                        .foregroundColor(.pink)
+                }
             }
+            Spacer()
+            HStack {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.pink)
+                Text("\(measurement.pulse) BPM")
+                    .foregroundColor(.secondary)
+            }
+            .font(.caption)
             Spacer()
             HStack {
                 Image(systemName: "clock")
@@ -42,8 +55,10 @@ struct RecordLabel: View {
                 Spacer()
             }
             .font(.caption)
+            Spacer()
+            
         }
-        .frame(height: 10)
+        .frame(height: 23)
         .padding()
     }
     
