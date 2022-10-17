@@ -51,4 +51,7 @@ class ErrorAlerts: NSObject {
     static let failedToCompleteOperation = ErrorInfo(
         title: LocalizedStringKey("Oops! Failed to Complete Operation").stringValue(),
         description: LocalizedStringKey("Try to reload device.").stringValue())
+    static let failedToUploadToMedsengerError = ErrorInfo(
+        title: LocalizedStringKey("Oops! Failed to upload to medsenger").stringValue(),
+        description: LocalizedStringKey("Please contact medsenger support.").stringValue())
 }

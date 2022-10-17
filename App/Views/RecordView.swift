@@ -7,63 +7,68 @@
 //
 
 import SwiftUI
-import Charts
+import QuickLook
 
-@available(iOS 16.0, *)
-enum ChartInterpolationMethod: Identifiable, CaseIterable {
-    case linear
-    case monotone
-    case catmullRom
-    case cardinal
-    case stepStart
-    case stepCenter
-    case stepEnd
-    
-    var id: String { mode.description }
-    
-    var mode: InterpolationMethod {
-        switch self {
-        case .linear:
-            return .linear
-        case .monotone:
-            return .monotone
-        case .stepStart:
-            return .stepStart
-        case .stepCenter:
-            return .stepCenter
-        case .stepEnd:
-            return .stepEnd
-        case .catmullRom:
-            return .catmullRom
-        case .cardinal:
-            return .cardinal
-        }
-    }
-}
+//struct PreviewController: UIViewControllerRepresentable {
+//    typealias UIViewControllerType = UINavigationController
+//
+//    let url: URL
+//    @Binding var isPresented: Bool
+//
+//    func makeUIViewController(context: Context) -> UINavigationController {
+//        let controller = QLPreviewController()
+//        controller.dataSource = context.coordinator
+//        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
+//            barButtonSystemItem: .done, target: context.coordinator,
+//            action: #selector(context.coordinator.dismiss)
+//        )
+//
+//        let navigationController = UINavigationController(
+//            rootViewController: controller
+//        )
+//        return navigationController
+//    }
+//
+//    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+//
+//    class Coordinator: QLPreviewControllerDataSource {
+//        let parent: PreviewController
+//
+//        init(parent: PreviewController) {
+//            self.parent = parent
+//        }
+//
+//        func numberOfPreviewItems(
+//            in controller: QLPreviewController
+//        ) -> Int {
+//            return 1
+//        }
+//
+//        func previewController(
+//            _ controller: QLPreviewController,
+//            previewItemAt index: Int
+//        ) -> QLPreviewItem {
+//            return parent.url as NSURL
+//        }
+//
+//        @objc func dismiss() {
+//            parent.isPresented = false
+//        }
+//    }
+//
+//    func makeCoordinator() -> Coordinator {
+//        return Coordinator(parent: self)
+//    }
+//}
 
-struct ValueRowView: View {
-    let key: String
-    let value: Text
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(key)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            value
-        }
-    }
-}
-
-@available(iOS 16.0, *)
 struct RecordView: View {
     let measurement: Measurement
     let dateFormatter: DateFormatter
     let data: [Double]
     
-    @State private var lineWidth = 1.0
-    @State private var interpolationMethod: ChartInterpolationMethod = .cardinal
-    @State private var chartColor: Color = .pink
+    @State private var fileURL: URL?
+    
+    @State private var showingPreview = false
     
     init(measurement: Measurement) {
         self.measurement = measurement
@@ -74,109 +79,150 @@ struct RecordView: View {
     }
     
     var body: some View {
-        VStack {
-            Form {
-                Section(header: Text("Details")) {
-                    ValueRowView(key: "Measurement time", value: Text(measurement.date!, formatter: dateFormatter))
+        List {
+            Section(header: Text("Details")) {
+                VStack(alignment: .leading) {
+                    Text("Measurement time")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    Text(measurement.date!, formatter: dateFormatter)
                 }
                 
-                Section(header: Text("Blood Pressure")) {
-                    ValueRowView(key: "Diastolic Blood Pressure", value: Text("\(measurement.diastolicBloodPressure)"))
-                    ValueRowView(key: "Systoluc Blood Pressure", value: Text("\(measurement.systolicBloodPressure)"))
-                    ValueRowView(key: "Pulse", value: Text("\(measurement.pulse)"))
+                VStack(alignment: .leading) {
+                    Text("Operating Mode")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    switch getDeviceOperatingMode() {
+                    case .Electrocardiogram:
+                        Text("Electrocardiogram")
+                    case .arterialPressure:
+                        Text("Arterial pressure")
+                    case .arterialPressureAndElectrocardiogram:
+                        Text("Arterial pressure and electrocardiogram")
+                    case .unknown:
+                        Text("Reading data error")
+                    }
                 }
                 
-                Section {
-                    if (!data.isEmpty) {
-                        chartAndLabels
+                VStack(alignment: .leading) {
+                    Text("Series status")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    if measurement.measMode {
+                        Text("Series measurement")
                     } else {
-                        Text("No ECG")
+                        Text("Usual measurement")
                     }
                 }
             }
-            .navigationBarTitle("Measurement")
+            
+            Section(header: Text("Blood Pressure")) {
+                VStack(alignment: .leading) {
+                    Text("Diastolic Blood Pressure")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    HStack {
+                        Image(systemName: "stethoscope")
+                            .foregroundColor(.pink)
+                        Text("\(measurement.diastolicBloodPressure) mmHg")
+                    }
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("Systoluc Blood Pressure")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    HStack {
+                        Image(systemName: "stethoscope")
+                            .foregroundColor(.pink)
+                        Text("\(measurement.systolicBloodPressure) mmHg")
+                    }
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("Heart Rate")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    HStack {
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(.pink)
+                        Text("\(measurement.pulse) BPM")
+                    }
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("Arrhythmia")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                            .foregroundColor(.pink)
+                        switch getArrhythmiaStatus() {
+                        case .noRhythmDisturbances:
+                            Text("No rhythm disturbances")
+                        case .singleRhythmDisorder:
+                            Text("Single rhythm disorder (\(measurement.rhythmDisturbances) times)")
+                        case .repeatedRhythmDisturbances:
+                            Text("Repeated rhythm disturbances (\(measurement.rhythmDisturbances) times)")
+                        case .prolongedArrhythmia:
+                            Text("Prolonged arrhythmia (\(measurement.rhythmDisturbances)%)")
+                        case .unknown:
+                            Text("Reading data error")
+                        }
+                    }
+                }
+            }
+            
+            Section(header: Text("Sinus Rhythm")) {
+                if (!data.isEmpty) {
+                    ScrollView(.horizontal) {
+                        if #available(iOS 16.0, *) {
+                            EcgWaveformView(data: data, sampleRate: sampleRate())
+                                .frame(width: 1500, height: 300)
+                        } else {
+                            Text("To view ECG waveform update your device up to iOS 16")
+                        }
+                    }
+                } else {
+                    Text("Reading ECG error")
+                }
+            }
+        }
+        .navigationBarTitle("Measurement")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if #available(iOS 16.0, *) {
+                    Button(action: {
+                        self.fileURL = exportPDF()
+                        if let fileURL = self.fileURL {
+                            let _ = share(items: [fileURL])
+                        }
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                            if self.fileURL != nil {
+//                                self.showingPreview = true
+//                            }
+//                        }
+                    }, label: { Image(systemName: "square.and.arrow.up") })
+//                    .sheet(isPresented: $showingPreview) {
+//                        if self.fileURL != nil {
+//                            PreviewController(
+//                                url: self.fileURL!,
+//                                isPresented: self.$showingPreview
+//                            )
+//                        }
+//                    }
+                    
+                }
+            }
         }
     }
     
-    private var chartAndLabels: some View {
-        VStack(alignment: .leading) {
-            Text("Sinus Rhythm")
-                .font(.system(.title2, design: .rounded))
-                .fontWeight(.bold)
-            Group {
-                Text(measurement.date!, style: .date) +
-                Text(" at ") +
-                Text(measurement.date!, style: .time)
-            }
-            .foregroundColor(.secondary)
-            ScrollView(.horizontal) {
-                chart
-            }
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.pink)
-                Text("\(measurement.pulse) BPM Average")
-                    .foregroundColor(.secondary)
-            }
-        }
-        .frame(height: 400)
+    private func getArrhythmiaStatus() -> ArrhythmiaStatus {
+        return ArrhythmiaStatus(rawValue: UInt8(measurement.arrhythmiaStatus)) ?? .unknown
     }
     
-    private var chart: some View {
-        Chart {
-            ForEach(Array(data.enumerated()), id: \.element) { index, element in
-                LineMark(
-                    x: .value("Seconds", Double(index)/sampleRate()),
-                    y: .value("Unit", element)
-                )
-                .lineStyle(StrokeStyle(lineWidth: 1.0))
-                .foregroundStyle(chartColor)
-                .interpolationMethod(interpolationMethod.mode)
-                .accessibilityLabel("\(Double(index)/sampleRate()) s")
-                .accessibilityValue("\(element) mV")
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 12)) { value in
-                if let doubleValue = value.as(Double.self),
-                   let intValue = value.as(Int.self) {
-                    if doubleValue - Double(intValue) == 0 {
-                        AxisTick(stroke: .init(lineWidth: 1))
-                            .foregroundStyle(.gray)
-                        AxisValueLabel() {
-                            Text("\(intValue)s")
-                        }
-                        AxisGridLine(stroke: .init(lineWidth: 1))
-                            .foregroundStyle(.gray)
-                    } else {
-                        AxisGridLine(stroke: .init(lineWidth: 1))
-                            .foregroundStyle(.gray.opacity(0.25))
-                    }
-                }
-            }
-        }
-        .chartYScale(domain: (data.min()! - 1)...(data.max()! + 1))
-        .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 14)) { value in
-                if let doubleValue = value.as(Double.self),
-                   let intValue = value.as(Int.self) {
-                    if doubleValue - Double(intValue) == 0 {
-                        AxisTick(stroke: .init(lineWidth: 1))
-                            .foregroundStyle(.gray)
-                        AxisValueLabel() {
-                            Text("\(intValue) mV")
-                        }
-                    }
-                    AxisGridLine(stroke: .init(lineWidth: 1))
-                        .foregroundStyle(.gray.opacity(0.25))
-                }
-            }
-        }
-        .chartPlotStyle {
-            $0.border(Color.gray)
-        }
-        .frame(width: 1500)
-//        .accessibilityChartDescriptor(self)
+    private func getDeviceOperatingMode() -> DeviceOperatingMode {
+        return DeviceOperatingMode(rawValue: UInt8(measurement.deviceOperatingMode)) ?? .unknown
     }
     
     private func sampleRate() -> Double {
@@ -192,7 +238,7 @@ struct RecordView: View {
             return 1
         }
     }
-     
+    
     private static func getData(measurement: Measurement) -> [Double] {
         guard let ecgData = measurement.ecgData else { return [] }
         let sampleRate = SampleRate(rawValue: UInt8(measurement.sampleRate)) ?? .unknown
@@ -207,6 +253,46 @@ struct RecordView: View {
         print("ECG length: \(ecgData.count), processed length: \(data.count), sample rate: \(sampleRate)")
         print(ecgData)
         print(data)
+    }
+    
+    @available(iOS 16.0, *)
+    @MainActor
+    private func exportPDF() -> URL? {
+        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        let renderedUrl = documentDirectory.appending(path: "Heart Rate Waveform ECG.pdf")
+        guard let consumer = CGDataConsumer(url: renderedUrl as CFURL),
+              let pdfContext = CGContext(consumer: consumer, mediaBox: nil, nil) else {
+            return nil
+        }
+        let renderer = ImageRenderer(content: HeartRateEcgWaveformPdfView(measurement: measurement))
+        renderer.render { size, renderer in
+            let options: [CFString: Any] = [
+                kCGPDFContextMediaBox: CGRect(origin: .zero, size: size)
+            ]
+            
+            pdfContext.beginPDFPage(options as CFDictionary)
+            
+            renderer(pdfContext)
+            pdfContext.endPDFPage()
+            pdfContext.closePDF()
+        }
+        print("Saving PDF to \(renderedUrl.path())")
+        
+        return  renderedUrl
+    }
+    
+    private func share(items: [Any], excludedActivityTypes: [UIActivity.ActivityType]? = nil) -> Bool {
+        guard let source = UIApplication.shared.windows.last?.rootViewController else {
+            return false
+        }
+        let vc = UIActivityViewController(
+            activityItems: items,
+            applicationActivities: nil
+        )
+        vc.excludedActivityTypes = excludedActivityTypes
+        vc.popoverPresentationController?.sourceView = source.view
+        source.present(vc, animated: true)
+        return true
     }
 }
 

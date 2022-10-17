@@ -15,12 +15,15 @@
 		4325FE8028F84F470038497E /* FilterFIR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7F28F84F470038497E /* FilterFIR.swift */; };
 		4325FE8228F8584F0038497E /* FilterFactory418.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE8128F8584F0038497E /* FilterFactory418.swift */; };
 		4325FE8428F859130038497E /* FilterFactory500.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE8328F859130038497E /* FilterFactory500.swift */; };
+		4328AE0128FD8810001B1E10 /* Medsenger-Gemocard-InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4328ADFF28FD8810001B1E10 /* Medsenger-Gemocard-InfoPlist.strings */; };
 		434EE0A928EC49B500591830 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0A828EC49B500591830 /* App.swift */; };
 		434EE0AB28EC49B500591830 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0AA28EC49B500591830 /* RootView.swift */; };
 		434EE0AD28EC49B700591830 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 434EE0AC28EC49B700591830 /* Assets.xcassets */; };
 		434EE0B028EC49B700591830 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 434EE0AF28EC49B700591830 /* Preview Assets.xcassets */; };
 		434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0B828EC4BDC00591830 /* UserDefaults+AppPrefs.swift */; };
 		434EE0BB28EC4C8600591830 /* GemocardSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EE0BA28EC4C8600591830 /* GemocardSDK.swift */; };
+		435B7B9928FB386B008BA62E /* HeartRateEcgWaveformPdfView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435B7B9828FB386B008BA62E /* HeartRateEcgWaveformPdfView.swift */; };
+		435B7B9B28FB38C1008BA62E /* EcgWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435B7B9A28FB38C1008BA62E /* EcgWaveformView.swift */; };
 		436ADB9928F06F3A003361E7 /* GetECGController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9828F06F3A003361E7 /* GetECGController.swift */; };
 		436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */; };
 		436ADB9D28F0819F003361E7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436ADB9C28F0819F003361E7 /* Models.swift */; };
@@ -54,6 +57,7 @@
 		4325FE7F28F84F470038497E /* FilterFIR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFIR.swift; sourceTree = "<group>"; };
 		4325FE8128F8584F0038497E /* FilterFactory418.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory418.swift; sourceTree = "<group>"; };
 		4325FE8328F859130038497E /* FilterFactory500.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory500.swift; sourceTree = "<group>"; };
+		4328AE0028FD8810001B1E10 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = "ru.lproj/Medsenger-Gemocard-InfoPlist.strings"; sourceTree = "<group>"; };
 		434EE0A528EC49B500591830 /* Medsenger Gemocard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Medsenger Gemocard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		434EE0A828EC49B500591830 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		434EE0AA28EC49B500591830 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -61,6 +65,8 @@
 		434EE0AF28EC49B700591830 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		434EE0B828EC4BDC00591830 /* UserDefaults+AppPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+AppPrefs.swift"; sourceTree = "<group>"; };
 		434EE0BA28EC4C8600591830 /* GemocardSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemocardSDK.swift; sourceTree = "<group>"; };
+		435B7B9828FB386B008BA62E /* HeartRateEcgWaveformPdfView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateEcgWaveformPdfView.swift; sourceTree = "<group>"; };
+		435B7B9A28FB38C1008BA62E /* EcgWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EcgWaveformView.swift; sourceTree = "<group>"; };
 		436ADB9828F06F3A003361E7 /* GetECGController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetECGController.swift; sourceTree = "<group>"; };
 		436ADB9A28F06FA5003361E7 /* AsyncQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncQueue.swift; sourceTree = "<group>"; };
 		436ADB9C28F0819F003361E7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -119,6 +125,7 @@
 				439FDB2E28F715DE00AC2ECA /* Medsenger Gemocard.entitlements */,
 				43E0E67428EE0A260010A363 /* README.md */,
 				43E0E66F28EDB4360010A363 /* Medsenger-Gemocard-Info.plist */,
+				4328ADFF28FD8810001B1E10 /* Medsenger-Gemocard-InfoPlist.strings */,
 				434EE0A728EC49B500591830 /* App */,
 				434EE0A628EC49B500591830 /* Products */,
 			);
@@ -203,6 +210,8 @@
 				43A1847428F5E42200AAA915 /* ConnectView.swift */,
 				43A1848328F5ECD800AAA915 /* RecordView.swift */,
 				43A1848528F5ED0700AAA915 /* RecordLabel.swift */,
+				435B7B9828FB386B008BA62E /* HeartRateEcgWaveformPdfView.swift */,
+				435B7B9A28FB38C1008BA62E /* EcgWaveformView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -273,6 +282,7 @@
 			files = (
 				434EE0B028EC49B700591830 /* Preview Assets.xcassets in Resources */,
 				43A1847C28F5E8D200AAA915 /* Localizable.strings in Resources */,
+				4328AE0128FD8810001B1E10 /* Medsenger-Gemocard-InfoPlist.strings in Resources */,
 				434EE0AD28EC49B700591830 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -297,12 +307,14 @@
 				43E0E66C28EDAF3B0010A363 /* GemocardKit.swift in Sources */,
 				43A1847328F5E41000AAA915 /* SettingsView.swift in Sources */,
 				436ADB9D28F0819F003361E7 /* Models.swift in Sources */,
+				435B7B9B28FB38C1008BA62E /* EcgWaveformView.swift in Sources */,
 				436ADB9B28F06FA5003361E7 /* AsyncQueue.swift in Sources */,
 				4325FE8228F8584F0038497E /* FilterFactory418.swift in Sources */,
 				43A1847528F5E42200AAA915 /* ConnectView.swift in Sources */,
 				43E0E67328EDDA4F0010A363 /* Data+.swift in Sources */,
 				4325FE7C28F84AAC0038497E /* CompensatingFilter.swift in Sources */,
 				439FDB3028F71BFF00AC2ECA /* HealthKitController.swift in Sources */,
+				435B7B9928FB386B008BA62E /* HeartRateEcgWaveformPdfView.swift in Sources */,
 				43A1847928F5E6EB00AAA915 /* View+NavigationBarTitle.swift in Sources */,
 				434EE0B928EC4BDC00591830 /* UserDefaults+AppPrefs.swift in Sources */,
 				43A1848028F5E94300AAA915 /* HapticFeedbackController.swift in Sources */,
@@ -322,6 +334,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		4328ADFF28FD8810001B1E10 /* Medsenger-Gemocard-InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4328AE0028FD8810001B1E10 /* ru */,
+			);
+			name = "Medsenger-Gemocard-InfoPlist.strings";
+			sourceTree = "<group>";
+		};
 		43A1847E28F5E8D200AAA915 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -457,7 +477,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;
@@ -478,7 +498,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.medsenger.gemocard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -497,7 +517,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;
@@ -518,7 +538,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.medsenger.gemocard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

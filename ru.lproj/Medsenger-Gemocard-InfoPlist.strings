@@ -1,0 +1,15 @@
+/* Bundle display name */
+"CFBundleDisplayName" = "Medsenger Gemocard";
+
+/* Bundle name */
+"CFBundleName" = "Medsenger Gemocard";
+
+/* Privacy - Bluetooth Always Usage Description */
+"NSBluetoothAlwaysUsageDescription" = "Приложение Medsenger Gemocard использует Bluetooth, чтобы синхронизировать данные с тонометром Аксма ГемоКард";
+
+/* Privacy - Health Share Usage Description */
+"NSHealthShareUsageDescription" = "Приложение Medsenger Gemocard интегрируется с приложением Здоровье от Apple, поэтому вы можете экспортировать данные с тонометра (артериальное давление и сердечный ритм) из приложения Medsenger Gemocard в приложение Здоровье";
+
+/* Privacy - Health Update Usage Description */
+"NSHealthUpdateUsageDescription" = "Приложение Medsenger Gemocard интегрируется с приложением Здоровье от Apple, поэтому вы можете экспортировать данные с тонометра (артериальное давление и сердечный ритм) из приложения Medsenger Gemocard в приложение Здоровье";
+

@@ -98,9 +98,17 @@ enum ChangeSeriesEndFlag: UInt8 {
 }
 
 enum ArrhythmiaStatus: UInt8 {
+    
+    /// нарушений ритма нет
     case noRhythmDisturbances = 0x00
+    
+    /// однократное нарушение ритма
     case singleRhythmDisorder = 0x01
+    
+    /// многократные нарушения ритма
     case repeatedRhythmDisturbances = 0x02
+    
+    /// продолжительная аритмия
     case prolongedArrhythmia = 0x03
     
     case unknown = 0x04

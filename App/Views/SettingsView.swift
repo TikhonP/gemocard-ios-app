@@ -21,7 +21,7 @@ struct SettingsView: View {
                 Section(header: Text("Connected device")) {
                     Text(gemocardKit.connectingPeripheral?.name ?? LocalizedStringKey("Unknown name").stringValue())
                     
-                    Button("Erase Device Memory", action: gemocardKit.eraseMemory)
+//                    Button("Erase Device Memory", action: gemocardKit.eraseMemory)
                     
                     if UserDefaults.saveUUID {
                         Button("Forget device", action: forgetDevice)

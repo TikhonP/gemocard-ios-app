@@ -17,7 +17,7 @@ final class GemocardKit: ObservableObject {
     // MARK: - private vars
     
     /// Delay between requests in seconds
-    private let delay = 0.3
+    private let delay = 0.1
     private let persistenceController = PersistenceController.shared
     
     private var gemocardSDK: GemocardSDK!
@@ -369,9 +369,9 @@ final class GemocardKit: ObservableObject {
                     "agent_token": medsengerAgentToken,
                     "timestamp": record.date!.timeIntervalSince1970,
                     "measurement": [
-                        //                        "FVC": record.fvc,
-                        //                        "FEV1": record.fev1,
-                        //                        "FEV1%": record.fev1_fvc,
+                        "pulse": record.pulse,
+                        "systolic_pressure": record.systolicBloodPressure,
+                        "diastolic_pressure": record.diastolicBloodPressure,
                     ]
                 ] as [String : Any]
                 
@@ -402,8 +402,29 @@ final class GemocardKit: ObservableObject {
                             } else {
                                 print("Failed to make HTTP reuest to medsenger: \(error!.localizedDescription)")
                                 //                                SentrySDK.capture(error: error!)
+                                self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
                             }
+                            self.sendingToMedsengerStatus = 0
                             return
+                        }
+                        if let httpResponse = response as? HTTPURLResponse {
+                            if httpResponse.statusCode == 422 {
+                                guard let data = data else {
+                                    self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
+                                    self.sendingToMedsengerStatus = 0
+                                    print("Response data is empty")
+                                    return
+                                }
+                                let dataString = String(decoding: data, as: UTF8.self)
+                                if dataString.contains("Incorrect token") {
+                                    self.throwAlert(ErrorAlerts.medsengerTokenIsEmpty)
+                                } else {
+                                    self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
+                                    print("Error sending to medsenger: \(dataString)")
+                                }
+                                self.sendingToMedsengerStatus = 0
+                                return
+                            }
                         }
                         if self.sendingToMedsengerStatus == records.count {
                             UserDefaults.lastMedsengerUploadedDate = Date()

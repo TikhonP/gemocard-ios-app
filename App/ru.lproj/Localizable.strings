@@ -1,7 +1,249 @@
-/* 
-  Localizable.strings
-  Medsenger Gemocard
+/* No comment provided by engineer. */
+"%@" = "";
 
-  Created by Tikhon Petrishchev on 11.10.2022.
-  Copyright © 2022 OOO Telepat. All rights reserved.
-*/
+/* No comment provided by engineer. */
+"%d BPM" = "%d уд./м.";
+
+/* No comment provided by engineer. */
+"%d mmHg" = "%d мм рт.ст.";
+
+/* No comment provided by engineer. */
+"%lf mV" = "%lf мВ";
+
+/* No comment provided by engineer. */
+"%lf s" = "%lf с";
+
+/* No comment provided by engineer. */
+"%lld mV" = "%lld мВ";
+
+/* No comment provided by engineer. */
+"%llds" = "%lld c";
+
+/* No comment provided by engineer. */
+"About" = "О приложении";
+
+/* No comment provided by engineer. */
+"All data already fetched with Medsenger." = "Все данные уже синхронизированы с Medsenger";
+
+/* No comment provided by engineer. */
+"Arrhythmia" = "Аритмия";
+
+/* No comment provided by engineer. */
+"Arterial pressure" = "Артериальное давление";
+
+/* No comment provided by engineer. */
+"Arterial pressure and electrocardiogram" = "Артериальное давление и электрокардиограмма";
+
+/* No comment provided by engineer. */
+"Authorization in Medsenger is not successful" = "Авторизация в Medsenger не удалась";
+
+/* No comment provided by engineer. */
+"Automatically connect to saved device after reboot" = "Автоматически подключаться к сохраненному устройству";
+
+/* No comment provided by engineer. */
+"Blood Pressure" = "Кровяное Давление";
+
+/* No comment provided by engineer. */
+"Click here and select the tonometer to connect." = "Нажмите сюда и выберите тонометр для подключения";
+
+/* No comment provided by engineer. */
+"Close" = "Закрыть";
+
+/* No comment provided by engineer. */
+"Connected device" = "Подключенное устройство";
+
+/* No comment provided by engineer. */
+"Connecting..." = "Подключение...";
+
+/* No comment provided by engineer. */
+"Delete Medsenger authorization details, you will not be able to send data to the service until you authorize again" = "Удалить данные авторизации Medsenger, вы не сможете отправлять данные в сервис, пока не авторизуетесь снова";
+
+/* No comment provided by engineer. */
+"Detailed information about this error has automaticly been recordedand we have been notified." = "Детальная информация об этой ошибке была автоматически записана, мы уведомлены и работаем над этим.";
+
+/* No comment provided by engineer. */
+"Details" = "Детали";
+
+/* No comment provided by engineer. */
+"Device disconnected" = "Устройство отключено";
+
+/* No comment provided by engineer. */
+"Device is not ready" = "Устройство не готово";
+
+/* No comment provided by engineer. */
+"Device offline" = "Устройство в режиме оффлайн";
+
+/* No comment provided by engineer. */
+"Device search..." = "Поиск устройств...";
+
+/* No comment provided by engineer. */
+"Devices" = "Устройства";
+
+/* No comment provided by engineer. */
+"Diastolic Blood Pressure" = "Диастолическое Артериальное Давление";
+
+/* No comment provided by engineer. */
+"Disconnect device" = "Отключить устройство";
+
+/* No comment provided by engineer. */
+"Done!" = "Готово!";
+
+/* No comment provided by engineer. */
+"Electrocardiogram" = "Электрокардиограмма";
+
+/* No comment provided by engineer. */
+"Erase Device Memory" = "Стереть память устройства";
+
+/* No comment provided by engineer. */
+"Fetched data" = "Ваши данные";
+
+/* No comment provided by engineer. */
+"Fetching data..." = "Синхронизация...";
+
+/* No comment provided by engineer. */
+"Forget device" = "Забыть устройство";
+
+/* No comment provided by engineer. */
+"Go to the Medsenger app for authorization" = "Перейдите в приложение Medsenger для авторизации";
+
+/* No comment provided by engineer. */
+"Heart Rate" = "Пульс";
+
+/* No comment provided by engineer. */
+"Measurement" = "Измерение";
+
+/* No comment provided by engineer. */
+"Measurement time" = "Время измерения";
+
+/* No comment provided by engineer. */
+"Measurements" = "Измерения";
+
+/* No comment provided by engineer. */
+"No measurements recorded" = "Нет записанных измерений";
+
+/* No comment provided by engineer. */
+"No new records" = "Нет новых зваписей";
+
+/* No comment provided by engineer. */
+"No rhythm disturbances" = "Нарушений ритма нет";
+
+/* No comment provided by engineer. */
+"Not availible ECG waveform" = "Отсутствуют данные ЭКГ";
+
+/* No comment provided by engineer. */
+"Oops! Failed to Complete Operation" = "Упс! Не удалось выполнить команду";
+
+/* No comment provided by engineer. */
+"Oops! Failed to connect" = "Упс! Не удалось подключиться к устройству";
+
+/* No comment provided by engineer. */
+"Oops! Failed to fetch data" = "Упс! Не удалось синхронизировать данные";
+
+/* No comment provided by engineer. */
+"Oops! Failed to upload to medsenger" = "Упс! Не удалось загрузить данные в Medsenger";
+
+/* No comment provided by engineer. */
+"Operating Mode" = "Режим работы";
+
+/* No comment provided by engineer. */
+"Ops! Bluetooth service on peripheral device not found!" = "Упс! Ошибка подключения к устройству!";
+
+/* No comment provided by engineer. */
+"Ops! Invalid peripheral found!" = "Упс! Устройство не готово!";
+
+/* No comment provided by engineer. */
+"Ops! Something bad happened!" = "Упс! Что-то пошло не так!";
+
+/* No comment provided by engineer. */
+"Please contact medsenger support." = "Пожалуйста, свяжитесь со службой поддержки Medsenger.";
+
+/* No comment provided by engineer. */
+"Prolonged arrhythmia (%d%%)" = "Продолжительная аритмия (%d%%)";
+
+/* No comment provided by engineer. */
+"Reading data error" = "Ошибка чтения данных";
+
+/* No comment provided by engineer. */
+"Reading ECG error" = "Отсутствуют данные ЭКГ";
+
+/* No comment provided by engineer. */
+"Repeated rhythm disturbances (%d times)" = "Многократные нарушения ритма (%d раз)";
+
+/* No comment provided by engineer. */
+"Reset Medsenger credentials" = "Сбросить реквизиты Medsenger";
+
+/* No comment provided by engineer. */
+"Save connection" = "Сохранить измерение";
+
+/* No comment provided by engineer. */
+"Search..." = "Поиск...";
+
+/* No comment provided by engineer. */
+"Seconds" = "Секунды";
+
+/* No comment provided by engineer. */
+"Select your Acsma Gemocard from the list below, the saved devices will be connected automatically." = "Выберите Ваше устройство Аксма ГемоКард из списка ниже, сохраненное устройство подключится автоматически.";
+
+/* No comment provided by engineer. */
+"Series measurement" = "Серия измерений";
+
+/* No comment provided by engineer. */
+"Series status" = "Статус серии измерений";
+
+/* No comment provided by engineer. */
+"Settings" = "Настройки";
+
+/* No comment provided by engineer. */
+"Single rhythm disorder (%d times)" = "Однократное нарушение ритма (%d раз)";
+
+/* No comment provided by engineer. */
+"Sinus Rhythm" = "Осциллограмма ЭКГ";
+
+/* No comment provided by engineer. */
+"Systoluc Blood Pressure" = "Систолическое Артериальное Давление";
+
+/* No comment provided by engineer. */
+"Take measurements with a tonometer so they appear here." = "Произведите измерения с помощью тонометра, и они окажутся здесь.";
+
+/* No comment provided by engineer. */
+"The data successfully uploaded to Medsenger." = "Данные успешно загружены в Medsenger.";
+
+/* No comment provided by engineer. */
+"This can happen if the tonometer has a dead battery. If it's not, maybe it's a random error, try again." = "Это может случиться, если у тонометра разрядилась батарея. Если нет, возможно это случайная ошибка, попробуйте ещё раз.";
+
+/* No comment provided by engineer. */
+"To connect the tonometer, turn on the bluetooth and give the app permission to use it." = "Чтобы подключить тонометр, включите Bluetooth и дайте разрешение приложению на его использование в настройках";
+
+/* No comment provided by engineer. */
+"To view ECG waveform update your device up to iOS 16" = "Чтобы посмотреть график ЭКГ, обновите ваше устройство до iOS 16";
+
+/* No comment provided by engineer. */
+"Try to reload application." = "Попробуйте перезагрузить приложение";
+
+/* No comment provided by engineer. */
+"Try to reload device." = "Попробуйте перезагрузить устройство";
+
+/* No comment provided by engineer. */
+"Turn off Airplane Mode or connect to Wi-Fi." = "Выключите Авиарежим или подключитесь к Wi-Fi.";
+
+/* No comment provided by engineer. */
+"Unit" = "мВ";
+
+/* No comment provided by engineer. */
+"Unknown name" = "Имя не найдено";
+
+/* No comment provided by engineer. */
+"Upload to Medsenger" = "Загрузить в Medsenger";
+
+/* No comment provided by engineer. */
+"Usual measurement" = "Стандартное измерение";
+
+/* No comment provided by engineer. */
+"Version" = "Версия";
+
+/* No comment provided by engineer. */
+"Version not found" = "Версия не найдена";
+
+/* No comment provided by engineer. */
+"Waiting Bluetooth..." = "Ожидание Bluetooth...";
+
