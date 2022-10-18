@@ -54,7 +54,7 @@ struct HeartRateEcgWaveformPdfView: View {
                     if measurement.measMode {
                         Text("Series measurement")
                     } else {
-                        Text("Usual measurement")
+                        Text("Standard measurement")
                     }
                 }
             }
@@ -72,7 +72,7 @@ struct HeartRateEcgWaveformPdfView: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Systoluc Blood Pressure")
+                    Text("Systolic Blood Pressure")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     HStack {
@@ -89,7 +89,7 @@ struct HeartRateEcgWaveformPdfView: View {
                     HStack {
                         Image(systemName: "heart.fill")
                             .foregroundColor(.pink)
-                        Text("\(measurement.pulse) BPM")
+                        Text("\(measurement.pulse) bpm")
                     }
                 }
                 
@@ -126,11 +126,11 @@ struct HeartRateEcgWaveformPdfView: View {
                         EcgWaveformView(data: Array(data[...Int(data.count/2)]), sampleRate: sampleRate())
                             .frame(width: 580, height: 200)
                     } else {
-                        Text("Not availible ECG waveform")
+                        Text("No ECG data")
                     }
                     
                 } else {
-                    Text("Reading ECG error")
+                    Text("No ECG data")
                 }
             }
         }

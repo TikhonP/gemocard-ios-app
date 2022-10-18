@@ -17,14 +17,14 @@ struct ErrorInfo: Identifiable {
 
 class ErrorAlerts: NSObject {
     static let error = ErrorInfo(
-        title: LocalizedStringKey("Ops! Something bad happened!").stringValue(),
-        description: LocalizedStringKey("Detailed information about this error has automaticly been recordedand we have been notified.").stringValue())
+        title: LocalizedStringKey("Oops! Something bad happened!").stringValue(),
+        description: LocalizedStringKey("Detailed information about this error has automaticly been recorded we have been notified.").stringValue())
     static let invalidPeriferal = ErrorInfo(
         title: LocalizedStringKey("Ops! Invalid peripheral found!").stringValue(),
-        description: LocalizedStringKey("Detailed information about this error has automaticly been recordedand we have been notified.").stringValue())
+        description: LocalizedStringKey("Detailed information about this error has automaticly been recorded we have been notified.").stringValue())
     static let serviceNotFound = ErrorInfo(
-        title: LocalizedStringKey("Ops! Bluetooth service on peripheral device not found!").stringValue(),
-        description: LocalizedStringKey("Detailed information about this error has automaticly been recordedand we have been notified.").stringValue())
+        title: LocalizedStringKey("Oops! Bluetooth service on peripheral device not found!").stringValue(),
+        description: LocalizedStringKey("Detailed information about this error has automaticly been recorded we have been notified.").stringValue())
     static let deviceIsNotReady = ErrorInfo(
         title: LocalizedStringKey("Device is not ready").stringValue(),
         description: LocalizedStringKey("Try to reload application.").stringValue())

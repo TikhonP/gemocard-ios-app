@@ -36,8 +36,8 @@ class ECGfilter {
             compFilter: true,
             hp1Filter: true,
             lp35Filter: true,
-            bs50Filter: false,
-            lp75Filter: false
+            bs50Filter: true,
+            lp75Filter: true
         )
         return filterMode
     }

@@ -19,6 +19,12 @@ struct AsyncQueue<T> {
         }
     }
     
+    mutating func enqueueArray(_ array: [T]) {
+        queue.sync(flags: .barrier) {
+            self.elements = self.elements + array
+        }
+    }
+    
     mutating func dequeue() -> T? {
         return queue.sync(flags: .barrier) {
             guard !self.elements.isEmpty else {

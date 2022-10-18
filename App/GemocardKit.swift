@@ -195,7 +195,7 @@ final class GemocardKit: ObservableObject {
             print("Updated status code: \(code)")
             switch code {
             case .bluetoothIsOff:
-                self.navigationBarTitleStatus = LocalizedStringKey("Waiting Bluetooth...").stringValue()
+                self.navigationBarTitleStatus = LocalizedStringKey("Bluetooth Waiting...").stringValue()
                 self.isBluetoothOn = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     if !self.isBluetoothOn {

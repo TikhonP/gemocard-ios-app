@@ -138,7 +138,7 @@ struct MainView: View {
     private var inlineAlerts: some View {
         ZStack {
             if gemocardKit.showBluetoothIsOffWarning {
-                Text("To connect the tonometer, turn on the bluetooth and give the app permission to use it.")
+                Text("To connect a blood pressure monitor, turn on Bluetooth and give permission to the application to use it in the settings.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)

@@ -111,7 +111,7 @@ struct RecordView: View {
                     if measurement.measMode {
                         Text("Series measurement")
                     } else {
-                        Text("Usual measurement")
+                        Text("Standard measurement")
                     }
                 }
             }
@@ -129,7 +129,7 @@ struct RecordView: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Systoluc Blood Pressure")
+                    Text("Systolic Blood Pressure")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     HStack {
@@ -146,7 +146,7 @@ struct RecordView: View {
                     HStack {
                         Image(systemName: "heart.fill")
                             .foregroundColor(.pink)
-                        Text("\(measurement.pulse) BPM")
+                        Text("\(measurement.pulse) bpm")
                     }
                 }
                 
@@ -173,7 +173,7 @@ struct RecordView: View {
                 }
             }
             
-            Section(header: Text("Sinus Rhythm")) {
+            Section(header: Text("ECG waveform")) {
                 if (!data.isEmpty) {
                     ScrollView(.horizontal) {
                         if #available(iOS 16.0, *) {
@@ -184,7 +184,7 @@ struct RecordView: View {
                         }
                     }
                 } else {
-                    Text("Reading ECG error")
+                    Text("No ECG data")
                 }
             }
         }

@@ -44,7 +44,7 @@ struct RecordLabel: View {
             HStack {
                 Image(systemName: "heart.fill")
                     .foregroundColor(.pink)
-                Text("\(measurement.pulse) BPM")
+                Text("\(measurement.pulse) bpm")
                     .foregroundColor(.secondary)
             }
             .font(.caption)

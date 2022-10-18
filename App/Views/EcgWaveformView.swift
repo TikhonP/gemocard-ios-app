@@ -21,7 +21,7 @@ struct EcgWaveformView: View {
         Chart(Array(data.enumerated()), id: \.element) {  index, element in
             LineMark(
                 x: .value("Seconds", Double(index)/sampleRate),
-                y: .value("Unit", element)
+                y: .value("mV", element)
             )
             .lineStyle(StrokeStyle(lineWidth: 1.0))
             .foregroundStyle(chartColor)
@@ -37,7 +37,7 @@ struct EcgWaveformView: View {
                         AxisTick(stroke: .init(lineWidth: 1))
                             .foregroundStyle(.gray)
                         AxisValueLabel() {
-                            Text("\(intValue)s")
+                            Text("\(intValue) s")
                         }
                         AxisGridLine(stroke: .init(lineWidth: 1))
                             .foregroundStyle(.gray)

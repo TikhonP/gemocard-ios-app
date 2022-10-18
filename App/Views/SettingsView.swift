@@ -31,7 +31,7 @@ struct SettingsView: View {
                 }
                 
                 Section(footer: Text("Automatically connect to saved device after reboot")) {
-                    Toggle("Save connection", isOn: $saveUUID)
+                    Toggle("Keep Connected", isOn: $saveUUID)
                         .onChange(of: saveUUID) { value in
                             UserDefaults.saveUUID = value
                             
