@@ -35,37 +35,61 @@ class PersistenceController: ObservableObject {
         }
     }
     
-    func createMeasurementFromStruct(measurement: MeasurementResult, measurementHeader: MeasurementHeaderResult, ecgData: [UInt32]?, ecgStatusData: [UInt8]?, context: NSManagedObjectContext) {
+    func createMeasurementFromStruct(measurement: MeasurementResult?, measurementHeader: MeasurementHeaderResult?, ecgData: [UInt32]?, ecgStatusData: [UInt8]?, context: NSManagedObjectContext) {
         let measurementModel = Measurement(context: context)
         
         measurementModel.id = UUID()
         
-        measurementModel.date = measurement.date
-        measurementModel.measMode = measurement.measMode
-        measurementModel.period = measurement.period
-        measurementModel.originallyPlannedNumberOfRevisionsInSeries = measurement.originallyPlannedNumberOfRevisionsInSeries
-        measurementModel.numberOfSuccessfulMeasurment = measurement.numberOfSuccessfulMeasurment
-        measurementModel.changeSeriesEndFlag = Int16(measurement.changeSeriesEndFlag.rawValue)
-        measurementModel.idSeriesOfMeasurement = measurement.idSeriesOfMeasurement
-        measurementModel.userId = measurement.userId
-        measurementModel.systolicBloodPressure = measurement.systolicBloodPressure
-        measurementModel.diastolicBloodPressure = measurement.diastolicBloodPressure
-        measurementModel.pulse = measurement.pulse
-        measurementModel.arrhythmiaStatus = Int16(measurement.arrhythmiaStatus.rawValue)
-        measurementModel.rhythmDisturbances = measurement.rhythmDisturbances
+        if let measurement = measurement {
+            measurementModel.date = measurement.date
+            measurementModel.measMode = measurement.measMode
+            measurementModel.period = measurement.period
+            measurementModel.originallyPlannedNumberOfRevisionsInSeries = measurement.originallyPlannedNumberOfRevisionsInSeries
+            measurementModel.numberOfSuccessfulMeasurment = measurement.numberOfSuccessfulMeasurment
+            measurementModel.changeSeriesEndFlag = Int16(measurement.changeSeriesEndFlag.rawValue)
+            measurementModel.idSeriesOfMeasurement = measurement.idSeriesOfMeasurement
+            measurementModel.userId = measurement.userId
+            measurementModel.bloodPressureSystolic = measurement.bloodPressureSystolic
+            measurementModel.bloodPressureDiastolic = measurement.bloodPressureDiastolic
+            measurementModel.heartRate = measurement.heartRate
+            measurementModel.arrhythmiaStatus = Int16(measurement.arrhythmiaStatus.rawValue)
+            measurementModel.rhythmDisturbances = measurement.rhythmDisturbances
+            measurementModel.headerHash = Int64(measurement.date.timeIntervalSince1970)
+        } else {
+            measurementModel.measMode = false
+            measurementModel.period = 0
+            measurementModel.originallyPlannedNumberOfRevisionsInSeries = 0
+            measurementModel.numberOfSuccessfulMeasurment = 0
+            measurementModel.changeSeriesEndFlag = Int16(ChangeSeriesEndFlag.unknown.rawValue)
+            measurementModel.idSeriesOfMeasurement = 0
+            measurementModel.bloodPressureSystolic = 0
+            measurementModel.bloodPressureDiastolic = 0
+            measurementModel.heartRate = 0
+            measurementModel.arrhythmiaStatus = Int16(ArrhythmiaStatus.unknown.rawValue)
+            measurementModel.rhythmDisturbances = 0
+        }
         
         measurementModel.ecgData = ecgData
         measurementModel.ecgStatusData = ecgStatusData
         
-        measurementModel.deviceOperatingMode = Int16(measurementHeader.deviceOperatingMode.rawValue)
-        measurementModel.measChan = Int16(measurementHeader.measChan.rawValue)
-        measurementModel.maxMeasurementLength = measurementHeader.maxMeasurementLength
-        measurementModel.sampleRate = Int16(measurementHeader.sampleRate.rawValue)
-        measurementModel.arterialPressureWavefromNumber = measurementHeader.arterialPressureWavefromNumber
-        measurementModel.userId = measurementHeader.userId
-        measurementModel.pointerToBeginningOfCardiogramInMemory = measurementHeader.pointerToBeginningOfCardiogramInMemory
-        measurementModel.headerHash = Int64(measurementHeader.customHashValue)
+        if let measurementHeader = measurementHeader {
+            measurementModel.deviceOperatingMode = Int16(measurementHeader.deviceOperatingMode.rawValue)
+            measurementModel.measChan = Int16(measurementHeader.measChan.rawValue)
+            measurementModel.maxMeasurementLength = measurementHeader.maxMeasurementLength
+            measurementModel.sampleRate = Int16(measurementHeader.sampleRate.rawValue)
+            measurementModel.arterialPressureWavefromNumber = measurementHeader.arterialPressureWavefromNumber
+            measurementModel.userId = measurementHeader.userId
+            measurementModel.pointerToBeginningOfCardiogramInMemory = measurementHeader.pointerToBeginningOfCardiogramInMemory
+            measurementModel.headerHash = Int64(measurementHeader.customHashValue)
+                                                
+            if measurement == nil {
+                measurementModel.date = measurementHeader.date
+            }
+        } else {
+            measurementModel.deviceOperatingMode = Int16(DeviceOperatingMode.arterialPressure.rawValue)
+        }
         
+        print("Saving core data: \(measurementModel)\n measurement: \(String(describing: measurement)), measurementHeader: \(String(describing: measurementHeader)), ecgCount: \(String(describing: ecgData?.count))")
         save(context: context)
     }
 }

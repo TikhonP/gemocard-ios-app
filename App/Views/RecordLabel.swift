@@ -40,14 +40,16 @@ struct RecordLabel: View {
                         .foregroundColor(.pink)
                 }
             }
-            Spacer()
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.pink)
-                Text("\(measurement.pulse) bpm")
-                    .foregroundColor(.secondary)
+            if !isEcgMeasurement {
+                Spacer()
+                HStack {
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(.pink)
+                    Text("\(measurement.heartRate) bpm")
+                        .foregroundColor(.secondary)
+                }
+                .font(.caption)
             }
-            .font(.caption)
             Spacer()
             HStack {
                 Image(systemName: "clock")
@@ -62,13 +64,20 @@ struct RecordLabel: View {
         .padding()
     }
     
-    var measurementHeader: String {
+    private var measurementHeader: String {
         let changeSeriesEndFlag = ChangeSeriesEndFlag(rawValue: UInt8(measurement.changeSeriesEndFlag))
         if changeSeriesEndFlag == .seriesCanceled {
             return "Series Canceled"
+        } else if isEcgMeasurement {
+            return "ECG measurement"
         } else {
-            return "\(measurement.diastolicBloodPressure) / \(measurement.systolicBloodPressure)"
+            return "\(measurement.bloodPressureDiastolic) / \(measurement.bloodPressureSystolic)"
         }
+    }
+    
+    private var isEcgMeasurement: Bool {
+        let deviceOperatingMode = DeviceOperatingMode(rawValue: UInt8(measurement.deviceOperatingMode))
+        return deviceOperatingMode == .Electrocardiogram
     }
     
     private var recordUploaded: Bool {

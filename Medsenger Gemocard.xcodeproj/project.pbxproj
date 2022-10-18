@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4315477A28FEE33A0048CDA7 /* GetDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4315477928FEE33A0048CDA7 /* GetDataController.swift */; };
 		4325FE7628F849450038497E /* ECGfilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7528F849450038497E /* ECGfilter.swift */; };
 		4325FE7828F849A20038497E /* FilterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7728F849A20038497E /* FilterFactory.swift */; };
 		4325FE7A28F849FB0038497E /* FilterFactory1000.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4325FE7928F849FB0038497E /* FilterFactory1000.swift */; };
@@ -48,6 +49,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4315477928FEE33A0048CDA7 /* GetDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetDataController.swift; sourceTree = "<group>"; };
 		4325FE7328F82DAD0038497E /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4325FE7528F849450038497E /* ECGfilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECGfilter.swift; sourceTree = "<group>"; };
 		4325FE7728F849A20038497E /* FilterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFactory.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 				434EE0AC28EC49B700591830 /* Assets.xcassets */,
 				434EE0AE28EC49B700591830 /* Preview Content */,
 				43A1847E28F5E8D200AAA915 /* Localizable.strings */,
+				4315477928FEE33A0048CDA7 /* GetDataController.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -327,6 +330,7 @@
 				43A1848228F5E95D00AAA915 /* Alerts.swift in Sources */,
 				4325FE8028F84F470038497E /* FilterFIR.swift in Sources */,
 				43A1848628F5ED0700AAA915 /* RecordLabel.swift in Sources */,
+				4315477A28FEE33A0048CDA7 /* GetDataController.swift in Sources */,
 				43E0E67128EDD52D0010A363 /* DataSerializer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -477,7 +481,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;
@@ -518,7 +522,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;

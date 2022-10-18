@@ -19,12 +19,9 @@ final class GemocardKit: ObservableObject {
     /// Delay between requests in seconds
     private let delay = 0.1
     private let persistenceController = PersistenceController.shared
-    
     private var gemocardSDK: GemocardSDK!
-    private var measurementsCount = 0
-    private var currentMeasurement: UInt8 = 1
-    private var maxDateWhileFetching: Date? = UserDefaults.lastSyncedDateKey
     private var healthKitAvailible = false
+    private var getDataController: GetDataController?
     
     // MARK: - published vars
     
@@ -49,20 +46,6 @@ final class GemocardKit: ObservableObject {
     
     // MARK: - private functions
     
-    /// Throw alert from ``ErrorAlerts`` class
-    /// - Parameters:
-    ///   - errorInfo: ``ErrorInfo`` instance
-    ///   - feedbackType: optional feedback type if you need haptic feedback
-    private func throwAlert(_ errorInfo: ErrorInfo, _ feedbackType: UINotificationFeedbackGenerator.FeedbackType? = nil) {
-        DispatchQueue.main.async {
-            if let feedbackType = feedbackType {
-                HapticFeedbackController.shared.prepareNotify()
-                HapticFeedbackController.shared.notify(feedbackType)
-            }
-            self.error = errorInfo
-        }
-    }
-    
     private func startGemocardSDK() {
         gemocardSDK = GemocardSDK(completion: gemocardSDKcompletion, onDiscoverCallback: onDiscoverCallback)
     }
@@ -83,108 +66,24 @@ final class GemocardKit: ObservableObject {
         }
     }
     
-    private func onRequestFail(_ failureCode: FailureCodes) {
+    /// Throw alert from ``ErrorAlerts`` class
+    /// - Parameters:
+    ///   - errorInfo: ``ErrorInfo`` instance
+    ///   - feedbackType: optional feedback type if you need haptic feedback
+    private func throwAlert(_ errorInfo: ErrorInfo, _ feedbackType: UINotificationFeedbackGenerator.FeedbackType? = nil) {
         DispatchQueue.main.async {
-            print("Error: \(failureCode)")
-            self.fetchingDataWithGemocard = false
-            self.throwAlert(ErrorAlerts.failedToFetchDataError, .error)
-            self.finishMeasurementFetch()
+            if let feedbackType = feedbackType {
+                HapticFeedbackController.shared.prepareNotify()
+                HapticFeedbackController.shared.notify(feedbackType)
+            }
+            self.error = errorInfo
         }
     }
     
-    private func finishMeasurementFetch() {
-        self.progress = 1
-        self.navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
-        self.fetchingDataWithGemocard = false
-        if let maxDateWhileFetching = self.maxDateWhileFetching {
-            UserDefaults.lastSyncedDateKey = maxDateWhileFetching
-        }
-    }
-    
-    private func getMeasurentHeader() {
+    /// For ``GetDataController``
+    private func progressUpdate(_ progress: Float) {
         DispatchQueue.main.async {
-            self.currentMeasurement += 1
-            if self.currentMeasurement <= self.measurementsCount {
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
-                    print("Getting measurement: \(self.currentMeasurement)")
-                    self.gemocardSDK.getMeasurementHeader(measurementNumber: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
-                }
-            } else {
-                self.finishMeasurementFetch()
-            }
-        }
-    }
-    
-    private func checkIfMeasurementIsNew(_ measurementHeaderResult: MeasurementHeaderResult) -> Bool {
-        let context = persistenceController.container.viewContext
-        let fetchRequest = Measurement.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "headerHash == %ld", measurementHeaderResult.customHashValue, #keyPath(Measurement.headerHash))
-        
-        guard let objects = try? context.fetch(fetchRequest) else {
-            print("Core Data failed to fetch hash")
-            guard let error = error as? Error else {
-                print("Core Data failed to fetch hash")
-                return false
-            }
-            print("Core Data failed to fetch: \(error.localizedDescription)")
-            // TODO: add sentry
-            // SentrySDK.capture(error: error)
-            return false
-        }
-        
-        return objects.isEmpty
-    }
-    
-    private func processMeasurementHeaderResult(_ measurementHeaderResult: MeasurementHeaderResult) {
-        DispatchQueue.main.async {
-            self.progress = 0.1 + ((Float(self.currentMeasurement + 1) - 0.5) / Float(self.measurementsCount + 1)) * 0.9
-            let context = self.persistenceController.container.viewContext
-            
-            let isObjectNew = {
-                guard let savedDate = UserDefaults.lastSyncedDateKey else { return true }
-                print("Saved date: \(savedDate), measurement header result date: \(measurementHeaderResult.date), is new: \(savedDate < measurementHeaderResult.date)")
-                return savedDate < measurementHeaderResult.date
-            }()
-            
-            if isObjectNew && self.checkIfMeasurementIsNew(measurementHeaderResult) {
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
-                    self.progress = 0.1 + (Float(self.currentMeasurement + 1) / Float(self.measurementsCount + 1)) * 0.9
-                    self.gemocardSDK.getMeasurement(measurementNumber: UInt16(self.currentMeasurement), completion: { measurementResult in
-                        
-                        if measurementResult.changeSeriesEndFlag != .seriesCanceled {
-                            if let maxDateWhileFetching = self.maxDateWhileFetching {
-                                if maxDateWhileFetching < measurementResult.date {
-                                    self.maxDateWhileFetching = measurementResult.date
-                                }
-                            } else {
-                                self.maxDateWhileFetching = measurementResult.date
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
-                                self.gemocardSDK.getECG(ECGnumber: self.currentMeasurement, completion: { ECGdata, ECGStatusData in
-                                    self.persistenceController.createMeasurementFromStruct(measurement: measurementResult, measurementHeader: measurementHeaderResult, ecgData: ECGdata, ecgStatusData: ECGStatusData, context: context)
-                                    if self.healthKitAvailible {
-                                        HealthKitController.saveRecord(
-                                            heartRate: Double(measurementResult.pulse),
-                                            bloodPressureSystolic: Double(measurementResult.systolicBloodPressure),
-                                            bloodPressureDiastolic: Double(measurementResult.diastolicBloodPressure),
-                                            date: measurementResult.date)
-                                    }
-                                    print("Saved measurement: \(measurementResult)")
-                                    print("Measurement header: \(measurementHeaderResult)")
-                                    self.getMeasurentHeader()
-                                }, оnFailure: self.onRequestFail)
-                            }
-                        } else {
-                            print("Not Saved measurement: \(measurementResult)")
-                            print("Not Measurement header: \(measurementHeaderResult)")
-                            self.getMeasurentHeader()
-                        }
-                    }, оnFailure: self.onRequestFail)
-                }
-            } else {
-                self.getMeasurentHeader()
-                print("Skipping already synchronized objects")
-            }
+            self.progress = progress
         }
     }
     
@@ -279,25 +178,32 @@ final class GemocardKit: ObservableObject {
     }
     
     func getData() {
-        self.navigationBarTitleStatus = LocalizedStringKey("Fetching data...").stringValue()
-        self.fetchingDataWithGemocard = true
-        self.progress = 0.05
-        DispatchQueue.main.async {
-            self.gemocardSDK.getNumberOfMeasurements(completion:  { measurementsCount in
-                self.measurementsCount = measurementsCount
-                self.progress = 0.1
-                self.currentMeasurement = 0
-                print("Measurement count: \(measurementsCount), current measurement: \(self.currentMeasurement)")
-                if measurementsCount == 0 {
-                    self.finishMeasurementFetch()
-                    return
+        DispatchQueue.main.async { [self] in
+            navigationBarTitleStatus = LocalizedStringKey("Fetching data...").stringValue()
+            fetchingDataWithGemocard = true
+            
+            if getDataController == nil {
+                getDataController = GetDataController(gemocardSDK: gemocardSDK, healthKitAvailible: healthKitAvailible, throwAlert: throwAlert, progressUpdate: progressUpdate, delay: delay)
+            }
+            getDataController?.getData { status in
+                
+                self.fetchingDataWithGemocard = false
+                self.navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
+                
+                switch status {
+                case .timeout:
+                    self.throwAlert(ErrorAlerts.failedToFetchDataError, .error)
+                case .invalidCrc:
+                    self.throwAlert(ErrorAlerts.failedToFetchDataError, .error)
+                case .done:
+                    break
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.delay) {
-                    print("Getting measurement: \(self.currentMeasurement)")
-                    self.gemocardSDK.getMeasurementHeader(measurementNumber: self.currentMeasurement, completion: self.processMeasurementHeaderResult, оnFailure: self.onRequestFail)
-                }
-            }, оnFailure: self.onRequestFail)
+            }
         }
+    }
+    
+    func getDeviceStatusData() -> (deviceStatus: DeviceStatus?, deviceOperatingMode: DeviceOperatingMode?, cuffPressure: UInt16?) {
+        return (gemocardSDK.deviceStatus, gemocardSDK.deviceOperatingMode, gemocardSDK.cuffPressure)
     }
     
     func eraseMemory() {
@@ -369,9 +275,9 @@ final class GemocardKit: ObservableObject {
                     "agent_token": medsengerAgentToken,
                     "timestamp": record.date!.timeIntervalSince1970,
                     "measurement": [
-                        "pulse": record.pulse,
-                        "systolic_pressure": record.systolicBloodPressure,
-                        "diastolic_pressure": record.diastolicBloodPressure,
+                        "heartRate": record.heartRate,
+                        "systolic_pressure": record.bloodPressureSystolic,
+                        "diastolic_pressure": record.bloodPressureDiastolic,
                     ]
                 ] as [String : Any]
                 

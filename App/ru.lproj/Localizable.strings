@@ -86,10 +86,13 @@
 "Device search..." = "Поиск устройств...";
 
 /* No comment provided by engineer. */
+"Device Status" = "Статус устройства";
+
+/* No comment provided by engineer. */
 "Devices" = "Устройства";
 
 /* No comment provided by engineer. */
-"Diastolic Blood Pressure" = "Диастолическое Артериальное Давление";
+"Diastolic Blood Pressure" = "Диастолическое артериальное давление";
 
 /* No comment provided by engineer. */
 "Disconnect device" = "Отключить устройство";
@@ -179,6 +182,12 @@
 "Reading data error" = "Ошибка чтения данных";
 
 /* No comment provided by engineer. */
+"Ready, waiting" = "Готов, ожидание";
+
+/* No comment provided by engineer. */
+"Ready, waiting, series measurement" = "Готов, ожидание, серия измерений";
+
+/* No comment provided by engineer. */
 "Repeated rhythm disturbances (%d times)" = "Многократные нарушения ритма (%d раз)";
 
 /* No comment provided by engineer. */
@@ -209,10 +218,13 @@
 "Standard measurement" = "Стандартное измерение";
 
 /* No comment provided by engineer. */
-"Systolic Blood Pressure" = "Систолическое Артериальное Давление";
+"Systolic Blood Pressure" = "Систолическое артериальное давление";
 
 /* No comment provided by engineer. */
 "Take measurements with a tonometer so they appear here." = "Произведите измерения с помощью тонометра, и они окажутся здесь.";
+
+/* No comment provided by engineer. */
+"Test mode" = "Тестовый режим";
 
 /* No comment provided by engineer. */
 "The data successfully uploaded to Medsenger." = "Данные успешно загружены в Medsenger.";
@@ -246,4 +258,7 @@
 
 /* No comment provided by engineer. */
 "Version not found" = "Версия не найдена";
+
+/* No comment provided by engineer. */
+"Waiting for next series measurement" = "Ожидание следующего измерения в серии";
 

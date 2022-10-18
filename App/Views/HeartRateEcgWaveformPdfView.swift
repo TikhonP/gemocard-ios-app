@@ -59,58 +59,60 @@ struct HeartRateEcgWaveformPdfView: View {
                 }
             }
             
-            Section {
-                VStack(alignment: .leading) {
-                    Text("Diastolic Blood Pressure")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "stethoscope")
-                            .foregroundColor(.pink)
-                        Text("\(measurement.diastolicBloodPressure) mmHg")
+            if getDeviceOperatingMode() != .Electrocardiogram {
+                Section {
+                    VStack(alignment: .leading) {
+                        Text("Diastolic Blood Pressure")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "stethoscope")
+                                .foregroundColor(.pink)
+                            Text("\(measurement.bloodPressureDiastolic) mmHg")
+                        }
                     }
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Systolic Blood Pressure")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "stethoscope")
-                            .foregroundColor(.pink)
-                        Text("\(measurement.systolicBloodPressure) mmHg")
+                    
+                    VStack(alignment: .leading) {
+                        Text("Systolic Blood Pressure")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "stethoscope")
+                                .foregroundColor(.pink)
+                            Text("\(measurement.bloodPressureSystolic) mmHg")
+                        }
                     }
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Heart Rate")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "heart.fill")
-                            .foregroundColor(.pink)
-                        Text("\(measurement.pulse) bpm")
+                    
+                    VStack(alignment: .leading) {
+                        Text("Heart Rate")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.pink)
+                            Text("\(measurement.heartRate) bpm")
+                        }
                     }
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Arrhythmia")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "waveform.path.ecg")
-                            .foregroundColor(.pink)
-                        switch getArrhythmiaStatus() {
-                        case .noRhythmDisturbances:
-                            Text("No rhythm disturbances")
-                        case .singleRhythmDisorder:
-                            Text("Single rhythm disorder (\(measurement.rhythmDisturbances) times)")
-                        case .repeatedRhythmDisturbances:
-                            Text("Repeated rhythm disturbances (\(measurement.rhythmDisturbances) times)")
-                        case .prolongedArrhythmia:
-                            Text("Prolonged arrhythmia (\(measurement.rhythmDisturbances)%)")
-                        case .unknown:
-                            Text("Reading data error")
+                    
+                    VStack(alignment: .leading) {
+                        Text("Arrhythmia")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .foregroundColor(.pink)
+                            switch getArrhythmiaStatus() {
+                            case .noRhythmDisturbances:
+                                Text("No rhythm disturbances")
+                            case .singleRhythmDisorder:
+                                Text("Single rhythm disorder (\(measurement.rhythmDisturbances) times)")
+                            case .repeatedRhythmDisturbances:
+                                Text("Repeated rhythm disturbances (\(measurement.rhythmDisturbances) times)")
+                            case .prolongedArrhythmia:
+                                Text("Prolonged arrhythmia (\(measurement.rhythmDisturbances)%)")
+                            case .unknown:
+                                Text("Reading data error")
+                            }
                         }
                     }
                 }
@@ -118,19 +120,21 @@ struct HeartRateEcgWaveformPdfView: View {
             
             Spacer()
             
-            Section {
-                if (!data.isEmpty) {
-                    if #available(iOS 16.0, *) {
-                        EcgWaveformView(data: Array(data[Int(data.count/2)...]), sampleRate: sampleRate())
-                            .frame(width: 580, height: 200)
-                        EcgWaveformView(data: Array(data[...Int(data.count/2)]), sampleRate: sampleRate())
-                            .frame(width: 580, height: 200)
+            if getDeviceOperatingMode() != .arterialPressure {
+                Section {
+                    if (!data.isEmpty) {
+                        if #available(iOS 16.0, *) {
+                            EcgWaveformView(data: Array(data[Int(data.count/2)...]), sampleRate: sampleRate())
+                                .frame(width: 580, height: 200)
+                            EcgWaveformView(data: Array(data[...Int(data.count/2)]), sampleRate: sampleRate())
+                                .frame(width: 580, height: 200)
+                        } else {
+                            Text("No ECG data")
+                        }
+                        
                     } else {
                         Text("No ECG data")
                     }
-                    
-                } else {
-                    Text("No ECG data")
                 }
             }
         }

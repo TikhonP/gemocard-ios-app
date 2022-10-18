@@ -21,6 +21,48 @@ struct SettingsView: View {
                 Section(header: Text("Connected device")) {
                     Text(gemocardKit.connectingPeripheral?.name ?? LocalizedStringKey("Unknown name").stringValue())
                     
+                    if getDeviceOperatingMode() != .unknown {
+                        VStack(alignment: .leading) {
+                            Text("Operating Mode")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            switch getDeviceOperatingMode() {
+                            case .Electrocardiogram:
+                                Text("Electrocardiogram")
+                            case .arterialPressure:
+                                Text("Arterial pressure")
+                            case .arterialPressureAndElectrocardiogram:
+                                Text("Arterial pressure and electrocardiogram")
+                            case .unknown:
+                                Text("Reading data error")
+                            }
+                        }
+                    }
+                    
+                    if getDeviceStatus() != .unknown {
+                        VStack(alignment: .leading) {
+                            Text("Device Status")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            switch getDeviceStatus() {
+                            case .readyWaiting:
+                                Text("Ready, waiting")
+                            case .measurement:
+                                Text("Measurement")
+                            case .testMode:
+                                Text("Test mode")
+                            case .readyWaitingSeries:
+                                Text("Ready, waiting, series measurement")
+                            case .seriesMeasurement:
+                                Text("Series measurement")
+                            case .waitingNextSeriesMeasurement:
+                                Text("Waiting for next series measurement")
+                            case .unknown:
+                                Text("Reading data error")
+                            }
+                        }
+                    }
+                    
 //                    Button("Erase Device Memory", action: gemocardKit.eraseMemory)
                     
                     if UserDefaults.saveUUID {
@@ -71,7 +113,15 @@ struct SettingsView: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
     
-    func forgetDevice() {
+    private func getDeviceOperatingMode() -> DeviceOperatingMode {
+        return gemocardKit.getDeviceStatusData().deviceOperatingMode ?? .unknown
+    }
+    
+    private func getDeviceStatus() -> DeviceStatus {
+        return gemocardKit.getDeviceStatusData().deviceStatus ?? .unknown
+    }
+    
+    private func forgetDevice() {
         UserDefaults.savedGemocardUUID = nil
         gemocardKit.disconnect()
         isPresented = false

@@ -175,7 +175,7 @@ class DataSerializer {
     /// Запрос результатов N предыдущего измерения
     /// - Parameter numberOfPreviousMeasurement: номер измерения
     /// - Returns: serialized Data object
-    class func getMeasurement(measurementNumber: UInt16) -> Data {
+    class func getMeasurementArterialPressure(measurementNumber: UInt16) -> Data {
         let results = DataSerializer.intToTwoBytes(measurementNumber)
         let bytes: [UInt8] = [0xAA, 0x05, 0x26, results.MSBs, results.LSBs, 0]
         return DataSerializer.addCrc(bytes)
@@ -186,6 +186,21 @@ class DataSerializer {
     /// - Returns: Mesurement result instance
     class func resultsNumberOfPreviousMeasurementDeserializer(bytes: [UInt8]) -> MeasurementResult {
         return MeasurementResult.deserialize(bytes: bytes)
+    }
+    
+    /// Запрос количества измерений только артериального давления в памяти устройства
+    /// - Returns: serialized Data object
+    class func getNumberOfMeasurementsArterialPressureInDeviceMemoryDeserializer() -> Data {
+        let bytes: [UInt8] = [0xAA, 0x03, 0x25, 0]
+        return DataSerializer.addCrc(bytes)
+    }
+    
+    /// Ответ на запрос количества измерений только артериального давления в памяти устройства
+    /// - Parameter bytes: byte array
+    /// - Returns: number of measuremnnts in memory
+    class func numberOfMeasurementsArterialPressureInDeviceMemoryDeserializer(bytes: [UInt8]) -> UInt16 {
+        let measurementsCount = DataSerializer.twoBytesToInt(MSBs: bytes[2], LSBs: bytes[3])
+        return measurementsCount
     }
     
     // MARK: - Команды ГемоКард

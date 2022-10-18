@@ -45,6 +45,10 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     
     private var gemocardDeviceController: GemocardDeviceController!
     
+    public var deviceStatus: DeviceStatus?
+    public var deviceOperatingMode: DeviceOperatingMode?
+    public var cuffPressure: UInt16?
+    
     /// Initialization of ``GemocardSDK`` class
     /// - Parameters:
     ///   - completion: update status callback for differrent events
@@ -130,21 +134,27 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
         }
     }
     
+    public func getNumberOfMeasurementsArterialPressure(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
+        checkIfPeripheralReady() {
+            gemocardDeviceController.getNumberOfMeasurementsArterialPressureInDeviceMemory(completion: completion, оnFailure: оnFailure)
+        }
+    }
+    
     public func getNumberOfMeasurements(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
             gemocardDeviceController.getNumberOfMeasurementsInDeviceMemory(completion: completion, оnFailure: оnFailure)
         }
     }
     
-    public func getMeasurementHeader(measurementNumber: UInt8, completion: @escaping GetMeasurementHeaderCompletion, оnFailure: @escaping OnFailure) {
+    public func getEcgMeasurementHeader(measurementNumber: UInt8, completion: @escaping GetMeasurementHeaderCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
             gemocardDeviceController.getMeasurementHeader(measurementNumber: measurementNumber, completion: completion, оnFailure: оnFailure)
         }
     }
     
-    public func getMeasurement(measurementNumber: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+    public func getMeasurementArterialPressure(measurementNumber: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         checkIfPeripheralReady() {
-            gemocardDeviceController.getMeasurement(measurementNumber: measurementNumber, completion: completion, оnFailure: оnFailure)
+            gemocardDeviceController.getMeasurementArterialPressure(measurementNumber: measurementNumber, completion: completion, оnFailure: оnFailure)
         }
     }
     
@@ -165,7 +175,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
     // MARK: - private functions for ``GeamocardDeviceController usage
     
     private func sendData(_ data: Data) {
-        print("SEND DATA (UInt8): \(data.bytes)")
+//        print("SEND DATA (UInt8): \(data.bytes)")
         peripheral.writeValue(data, for: characteristic, type: .withResponse)
     }
     
@@ -239,7 +249,12 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
                 peripheral.setNotifyValue(true, for: characteristic)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.gemocardDeviceController.getDeviceStatus { deviceStatus,deviceOperatingMode,cuffPressure in
+                    self.gemocardDeviceController.getDeviceStatus { deviceStatus, deviceOperatingMode, cuffPressure in
+                        
+                        self.deviceStatus = deviceStatus
+                        self.deviceOperatingMode = deviceOperatingMode
+                        self.cuffPressure = cuffPressure
+                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                             self.gemocardDeviceController.setDate { _ in
                                 self.gemocardDeviceController.setTime { _ in
@@ -271,7 +286,7 @@ class GemocardSDK: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate {
             return
         }
         let bytes = data.bytes
-        print("RECEIVED DATA (UInt8): \(bytes)")
+//        print("RECEIVED DATA (UInt8): \(bytes)")
         gemocardDeviceController.onDataReceived(bytes: bytes)
     }
 }

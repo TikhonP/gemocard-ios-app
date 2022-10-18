@@ -40,6 +40,7 @@ private enum GemocardDeviceControllerStatus {
     case eraseMemory
     case cancelMeasurement
     case startMeasurementForUser
+    case getNumberOfMeasurementsArterialPressureInDeviceMemory
 }
 
 /// Implements steps and methods to communicate with Gemocard
@@ -203,6 +204,16 @@ class GemocardDeviceController {
             processCommandDoneCompletion(bytes)
         case .startMeasurementForUser:
             processCommandDoneCompletion(bytes)
+        case .getNumberOfMeasurementsArterialPressureInDeviceMemory:
+            stopTimer()
+            if !validateCRC(bytes) {
+                status = .unknown
+                completionStorage.onFailure(.invalidCrc)
+                return
+            }
+            let measurementsCount = DataSerializer.numberOfMeasurementsArterialPressureInDeviceMemoryDeserializer(bytes: bytes)
+            status = .unknown
+            completionStorage.getNumberOfMeasurementsInDeviceMemory(Int(measurementsCount))
         }
     }
     
@@ -266,6 +277,14 @@ class GemocardDeviceController {
         startTimer()
     }
     
+    public func getNumberOfMeasurementsArterialPressureInDeviceMemory(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
+        status = .getNumberOfMeasurementsArterialPressureInDeviceMemory
+        completionStorage.getNumberOfMeasurementsInDeviceMemory = completion
+        completionStorage.onFailure = оnFailure
+        writeValueCallback(DataSerializer.getNumberOfMeasurementsArterialPressureInDeviceMemoryDeserializer())
+        startTimer()
+    }
+    
     public func getNumberOfMeasurementsInDeviceMemory(completion: @escaping GetNumberOfMeasurementsInDeviceMemoryCompletion, оnFailure: @escaping OnFailure) {
         status = .getNumberOfMeasurementsInDeviceMemory
         completionStorage.getNumberOfMeasurementsInDeviceMemory = completion
@@ -282,11 +301,11 @@ class GemocardDeviceController {
         startTimer()
     }
     
-    public func getMeasurement(measurementNumber: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
+    public func getMeasurementArterialPressure(measurementNumber: UInt16, completion: @escaping GetResultsNumberOfPreviousMeasurementCompletion, оnFailure: @escaping OnFailure) {
         status = .getResultsNumberOfPreviousMeasurement
         completionStorage.getResultsNumberOfPreviousMeasurement = completion
         completionStorage.onFailure = оnFailure
-        writeValueCallback(DataSerializer.getMeasurement(measurementNumber: measurementNumber))
+        writeValueCallback(DataSerializer.getMeasurementArterialPressure(measurementNumber: measurementNumber))
         startTimer()
     }
     

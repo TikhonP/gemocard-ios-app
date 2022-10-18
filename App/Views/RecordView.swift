@@ -116,75 +116,79 @@ struct RecordView: View {
                 }
             }
             
-            Section(header: Text("Blood Pressure")) {
-                VStack(alignment: .leading) {
-                    Text("Diastolic Blood Pressure")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "stethoscope")
-                            .foregroundColor(.pink)
-                        Text("\(measurement.diastolicBloodPressure) mmHg")
+            if getDeviceOperatingMode() != .Electrocardiogram {
+                Section(header: Text("Blood Pressure")) {
+                    VStack(alignment: .leading) {
+                        Text("Diastolic Blood Pressure")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "stethoscope")
+                                .foregroundColor(.pink)
+                            Text("\(measurement.bloodPressureDiastolic) mmHg")
+                        }
                     }
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Systolic Blood Pressure")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "stethoscope")
-                            .foregroundColor(.pink)
-                        Text("\(measurement.systolicBloodPressure) mmHg")
+                    
+                    VStack(alignment: .leading) {
+                        Text("Systolic Blood Pressure")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "stethoscope")
+                                .foregroundColor(.pink)
+                            Text("\(measurement.bloodPressureSystolic) mmHg")
+                        }
                     }
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Heart Rate")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "heart.fill")
-                            .foregroundColor(.pink)
-                        Text("\(measurement.pulse) bpm")
+                    
+                    VStack(alignment: .leading) {
+                        Text("Heart Rate")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.pink)
+                            Text("\(measurement.heartRate) bpm")
+                        }
                     }
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Arrhythmia")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    HStack {
-                        Image(systemName: "waveform.path.ecg")
-                            .foregroundColor(.pink)
-                        switch getArrhythmiaStatus() {
-                        case .noRhythmDisturbances:
-                            Text("No rhythm disturbances")
-                        case .singleRhythmDisorder:
-                            Text("Single rhythm disorder (\(measurement.rhythmDisturbances) times)")
-                        case .repeatedRhythmDisturbances:
-                            Text("Repeated rhythm disturbances (\(measurement.rhythmDisturbances) times)")
-                        case .prolongedArrhythmia:
-                            Text("Prolonged arrhythmia (\(measurement.rhythmDisturbances)%)")
-                        case .unknown:
-                            Text("Reading data error")
+                    
+                    VStack(alignment: .leading) {
+                        Text("Arrhythmia")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .foregroundColor(.pink)
+                            switch getArrhythmiaStatus() {
+                            case .noRhythmDisturbances:
+                                Text("No rhythm disturbances")
+                            case .singleRhythmDisorder:
+                                Text("Single rhythm disorder (\(measurement.rhythmDisturbances) times)")
+                            case .repeatedRhythmDisturbances:
+                                Text("Repeated rhythm disturbances (\(measurement.rhythmDisturbances) times)")
+                            case .prolongedArrhythmia:
+                                Text("Prolonged arrhythmia (\(measurement.rhythmDisturbances)%)")
+                            case .unknown:
+                                Text("Reading data error")
+                            }
                         }
                     }
                 }
             }
             
-            Section(header: Text("ECG waveform")) {
-                if (!data.isEmpty) {
-                    ScrollView(.horizontal) {
-                        if #available(iOS 16.0, *) {
-                            EcgWaveformView(data: data, sampleRate: sampleRate())
-                                .frame(width: 1500, height: 300)
-                        } else {
-                            Text("To view ECG waveform update your device up to iOS 16")
+            if getDeviceOperatingMode() != .arterialPressure {
+                Section(header: Text("ECG waveform")) {
+                    if (!data.isEmpty) {
+                        ScrollView(.horizontal) {
+                            if #available(iOS 16.0, *) {
+                                EcgWaveformView(data: data, sampleRate: sampleRate())
+                                    .frame(width: 1500, height: 300)
+                            } else {
+                                Text("To view ECG waveform update your device up to iOS 16")
+                            }
                         }
+                    } else {
+                        Text("No ECG data")
                     }
-                } else {
-                    Text("No ECG data")
                 }
             }
         }
