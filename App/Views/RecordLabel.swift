@@ -67,9 +67,9 @@ struct RecordLabel: View {
     private var measurementHeader: String {
         let changeSeriesEndFlag = ChangeSeriesEndFlag(rawValue: UInt8(measurement.changeSeriesEndFlag))
         if changeSeriesEndFlag == .seriesCanceled {
-            return "Series Canceled"
+            return LocalizedStringKey("Series Canceled").stringValue()
         } else if isEcgMeasurement {
-            return "ECG measurement"
+            return LocalizedStringKey("ECG measurement").stringValue()
         } else {
             return "\(measurement.bloodPressureDiastolic) / \(measurement.bloodPressureSystolic)"
         }

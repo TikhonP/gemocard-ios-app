@@ -39,7 +39,7 @@ class ErrorAlerts: NSObject {
     static let emptyDataToUploadToMedsenger = ErrorInfo(
         title: LocalizedStringKey("No new records").stringValue(),
         description: LocalizedStringKey("All data already fetched with Medsenger.").stringValue())
-    static let medsengerTokenIsEmpty = ErrorInfo(
+    static let medsengerTokenIsEmptyOrInvalid = ErrorInfo(
         title: LocalizedStringKey("Authorization in Medsenger is not successful").stringValue(),
         description: LocalizedStringKey("Go to the Medsenger app for authorization").stringValue())
     static let dataSuccessfullyUploadedToMedsenger = ErrorInfo(

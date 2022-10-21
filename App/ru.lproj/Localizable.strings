@@ -5,10 +5,10 @@
 "%@" = "%@";
 
 /* No comment provided by engineer. */
-"%d bpm" = "%d уд./м.";
+"%d bpm" = "%d УД/МИН";
 
 /* No comment provided by engineer. */
-"%d mmHg" = "%d мм рт.ст.";
+"%d mmHg" = "%d мм рт. ст.";
 
 /* No comment provided by engineer. */
 "%lf mV" = "%lf мВ";
@@ -21,6 +21,9 @@
 
 /* No comment provided by engineer. */
 "%lld s" = "%lld c";
+
+/* No comment provided by engineer. */
+"%u mmHg" = "%u мм рт. ст.";
 
 /* No comment provided by engineer. */
 "👆" = "👆";
@@ -65,6 +68,9 @@
 "Connecting..." = "Подключение...";
 
 /* No comment provided by engineer. */
+"Cuff Pressure" = "Давление в манжете";
+
+/* No comment provided by engineer. */
 "Delete Medsenger authorization details, you will not be able to send data to the service until you authorize again" = "Удалить данные авторизации Medsenger, вы не сможете отправлять данные в сервис, пока не авторизуетесь снова";
 
 /* No comment provided by engineer. */
@@ -99,6 +105,9 @@
 
 /* No comment provided by engineer. */
 "Done!" = "Готово!";
+
+/* No comment provided by engineer. */
+"ECG measurement" = "ЭКГ";
 
 /* No comment provided by engineer. */
 "ECG waveform" = "Осциллограмма ЭКГ";
@@ -201,6 +210,9 @@
 
 /* No comment provided by engineer. */
 "Select your Acsma Gemocard from the list below, the saved devices will be connected automatically." = "Выберите Ваше устройство Аксма ГемоКард из списка ниже, сохраненное устройство подключится автоматически.";
+
+/* No comment provided by engineer. */
+"Series Canceled" = "Серия отменена";
 
 /* No comment provided by engineer. */
 "Series measurement" = "Серия измерений";

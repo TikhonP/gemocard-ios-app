@@ -7,72 +7,15 @@
 //
 
 import SwiftUI
-import QuickLook
-
-//struct PreviewController: UIViewControllerRepresentable {
-//    typealias UIViewControllerType = UINavigationController
-//
-//    let url: URL
-//    @Binding var isPresented: Bool
-//
-//    func makeUIViewController(context: Context) -> UINavigationController {
-//        let controller = QLPreviewController()
-//        controller.dataSource = context.coordinator
-//        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
-//            barButtonSystemItem: .done, target: context.coordinator,
-//            action: #selector(context.coordinator.dismiss)
-//        )
-//
-//        let navigationController = UINavigationController(
-//            rootViewController: controller
-//        )
-//        return navigationController
-//    }
-//
-//    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
-//
-//    class Coordinator: QLPreviewControllerDataSource {
-//        let parent: PreviewController
-//
-//        init(parent: PreviewController) {
-//            self.parent = parent
-//        }
-//
-//        func numberOfPreviewItems(
-//            in controller: QLPreviewController
-//        ) -> Int {
-//            return 1
-//        }
-//
-//        func previewController(
-//            _ controller: QLPreviewController,
-//            previewItemAt index: Int
-//        ) -> QLPreviewItem {
-//            return parent.url as NSURL
-//        }
-//
-//        @objc func dismiss() {
-//            parent.isPresented = false
-//        }
-//    }
-//
-//    func makeCoordinator() -> Coordinator {
-//        return Coordinator(parent: self)
-//    }
-//}
 
 struct RecordView: View {
     let measurement: Measurement
     let dateFormatter: DateFormatter
-    let data: [Double]
     
-    @State private var fileURL: URL?
-    
-    @State private var showingPreview = false
+    @State private var data: [Double]?
     
     init(measurement: Measurement) {
         self.measurement = measurement
-        self.data = RecordView.getData(measurement: measurement)
         dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .long
         dateFormatter.timeStyle = .short
@@ -92,7 +35,7 @@ struct RecordView: View {
                     Text("Operating Mode")
                         .font(.subheadline)
                         .foregroundColor(.gray)
-                    switch getDeviceOperatingMode() {
+                    switch deviceOperatingMode {
                     case .Electrocardiogram:
                         Text("Electrocardiogram")
                     case .arterialPressure:
@@ -116,7 +59,7 @@ struct RecordView: View {
                 }
             }
             
-            if getDeviceOperatingMode() != .Electrocardiogram {
+            if deviceOperatingMode != .Electrocardiogram {
                 Section(header: Text("Blood Pressure")) {
                     VStack(alignment: .leading) {
                         Text("Diastolic Blood Pressure")
@@ -158,7 +101,7 @@ struct RecordView: View {
                         HStack {
                             Image(systemName: "waveform.path.ecg")
                                 .foregroundColor(.pink)
-                            switch getArrhythmiaStatus() {
+                            switch arrhythmiaStatus {
                             case .noRhythmDisturbances:
                                 Text("No rhythm disturbances")
                             case .singleRhythmDisorder:
@@ -175,19 +118,23 @@ struct RecordView: View {
                 }
             }
             
-            if getDeviceOperatingMode() != .arterialPressure {
+            if deviceOperatingMode != .arterialPressure {
                 Section(header: Text("ECG waveform")) {
-                    if (!data.isEmpty) {
-                        ScrollView(.horizontal) {
-                            if #available(iOS 16.0, *) {
-                                EcgWaveformView(data: data, sampleRate: sampleRate())
-                                    .frame(width: 1500, height: 300)
-                            } else {
-                                Text("To view ECG waveform update your device up to iOS 16")
+                    if let data = data {
+                        if (!data.isEmpty) {
+                            ScrollView(.horizontal) {
+                                if #available(iOS 16.0, *) {
+                                    EcgWaveformView(data: data, sampleRate: sampleRate)
+                                        .frame(width: 1500, height: 300)
+                                } else {
+                                    Text("To view ECG waveform update your device up to iOS 16")
+                                }
                             }
+                        } else {
+                            Text("No ECG data")
                         }
                     } else {
-                        Text("No ECG data")
+                        ProgressView()
                     }
                 }
             }
@@ -197,43 +144,33 @@ struct RecordView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if #available(iOS 16.0, *) {
                     Button(action: {
-                        self.fileURL = exportPDF()
-                        if let fileURL = self.fileURL {
-                            let _ = share(items: [fileURL])
+                        DispatchQueue.main.async {
+                            if let fileURL = exportPDF() {
+                                let _ = share(items: [fileURL])
+                            }
                         }
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                            if self.fileURL != nil {
-//                                self.showingPreview = true
-//                            }
-//                        }
                     }, label: { Image(systemName: "square.and.arrow.up") })
-//                    .sheet(isPresented: $showingPreview) {
-//                        if self.fileURL != nil {
-//                            PreviewController(
-//                                url: self.fileURL!,
-//                                isPresented: self.$showingPreview
-//                            )
-//                        }
-//                    }
-                    
                 }
             }
         }
+        .onAppear {
+            self.data = RecordView.getData(measurement: measurement)
+        }
     }
     
-    private func getArrhythmiaStatus() -> ArrhythmiaStatus {
+    private var arrhythmiaStatus: ArrhythmiaStatus {
         return ArrhythmiaStatus(rawValue: UInt8(measurement.arrhythmiaStatus)) ?? .unknown
     }
     
-    private func getDeviceOperatingMode() -> DeviceOperatingMode {
+    private var deviceOperatingMode: DeviceOperatingMode {
         return DeviceOperatingMode(rawValue: UInt8(measurement.deviceOperatingMode)) ?? .unknown
     }
     
-    private func sampleRate() -> Double {
+    private var sampleRate: Double {
         let sampleRate = SampleRate(rawValue: UInt8(measurement.sampleRate)) ?? .unknown
         switch sampleRate {
         case .sr417_5:
-            return 418
+            return 417.5
         case .sr500:
             return 500
         case .sr1000:

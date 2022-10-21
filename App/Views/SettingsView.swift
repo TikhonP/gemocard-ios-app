@@ -15,18 +15,20 @@ struct SettingsView: View {
     @State private var saveUUID = UserDefaults.saveUUID
     private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     
+    @State private var timer: Timer?
+    
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Connected device")) {
                     Text(gemocardKit.connectingPeripheral?.name ?? LocalizedStringKey("Unknown name").stringValue())
                     
-                    if getDeviceOperatingMode() != .unknown {
+                    if gemocardKit.deviceOperatingMode != .unknown {
                         VStack(alignment: .leading) {
                             Text("Operating Mode")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
-                            switch getDeviceOperatingMode() {
+                            switch gemocardKit.deviceOperatingMode {
                             case .Electrocardiogram:
                                 Text("Electrocardiogram")
                             case .arterialPressure:
@@ -39,12 +41,12 @@ struct SettingsView: View {
                         }
                     }
                     
-                    if getDeviceStatus() != .unknown {
+                    if gemocardKit.deviceStatus != .unknown {
                         VStack(alignment: .leading) {
                             Text("Device Status")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
-                            switch getDeviceStatus() {
+                            switch gemocardKit.deviceStatus {
                             case .readyWaiting:
                                 Text("Ready, waiting")
                             case .measurement:
@@ -63,6 +65,15 @@ struct SettingsView: View {
                         }
                     }
                     
+                    if showCuffPressure {
+                        VStack(alignment: .leading) {
+                            Text("Cuff Pressure")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text("\(gemocardKit.cuffPressure) mmHg")
+                        }
+                    }
+                    
 //                    Button("Erase Device Memory", action: gemocardKit.eraseMemory)
                     
                     if UserDefaults.saveUUID {
@@ -75,16 +86,17 @@ struct SettingsView: View {
                 Section(footer: Text("Automatically connect to saved device after reboot")) {
                     Toggle("Keep Connected", isOn: $saveUUID)
                         .onChange(of: saveUUID) { value in
-                            UserDefaults.saveUUID = value
-                            
-                            if value {
-                                guard let peripheral = gemocardKit.connectingPeripheral else {
+                            DispatchQueue.main.async {
+                                UserDefaults.saveUUID = value
+                                if value {
+                                    guard let peripheral = gemocardKit.connectingPeripheral else {
+                                        UserDefaults.savedGemocardUUID = nil
+                                        return
+                                    }
+                                    UserDefaults.savedGemocardUUID = peripheral.identifier.uuidString
+                                } else {
                                     UserDefaults.savedGemocardUUID = nil
-                                    return
                                 }
-                                UserDefaults.savedGemocardUUID = peripheral.identifier.uuidString
-                            } else {
-                                UserDefaults.savedGemocardUUID = nil
                             }
                         }
                 }
@@ -111,20 +123,30 @@ struct SettingsView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .onAppear(perform: startDeviceStatusDataTimer)
+        .onDisappear(perform: stopDeviceStatusDataTimer)
     }
     
-    private func getDeviceOperatingMode() -> DeviceOperatingMode {
-        return gemocardKit.getDeviceStatusData().deviceOperatingMode ?? .unknown
+    private var showCuffPressure: Bool {
+        return (gemocardKit.deviceStatus == .measurement || gemocardKit.deviceStatus == .seriesMeasurement) && (gemocardKit.deviceOperatingMode == .arterialPressure || gemocardKit.deviceOperatingMode == .arterialPressureAndElectrocardiogram)
     }
     
-    private func getDeviceStatus() -> DeviceStatus {
-        return gemocardKit.getDeviceStatusData().deviceStatus ?? .unknown
+    private func startDeviceStatusDataTimer() {
+        self.timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            self.gemocardKit.getDeviceStatusData()
+        }
+    }
+    
+    private func stopDeviceStatusDataTimer() {
+        timer?.invalidate()
     }
     
     private func forgetDevice() {
         UserDefaults.savedGemocardUUID = nil
         gemocardKit.disconnect()
-        isPresented = false
+        DispatchQueue.main.async {
+            isPresented = false
+        }
     }
 }
 

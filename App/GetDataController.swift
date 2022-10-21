@@ -212,9 +212,11 @@ class GetDataController {
                                 
                             }, оnFailure: self.onRequestFail)
                         }
-                    } else {
+                    } else if measurementHeaderResult.measChan == .LR {
                         self.saveEcgMeasurement(measurementHeaderResult, ECGdata, ECGStatusData)
                         self.getNextMeasurentHeader()
+                    } else {
+                        print("Skipping ECG measurement with unsupported meas chan: \(measurementHeaderResult.measChan) object (\(self.currentEcgMeasurement))")
                     }
                     
                 }, оnFailure: self.onRequestFail)

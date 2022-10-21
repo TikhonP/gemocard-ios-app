@@ -195,15 +195,11 @@ struct MainView: View {
     private func deleteMeasurements(offsets: IndexSet) {
         withAnimation {
             offsets.map { measurements[$0] }.forEach(viewContext.delete)
-            saveCoreData()
-        }
-    }
-
-    private func saveCoreData() {
-        do {
-            try viewContext.save()
-        } catch {
-            print("Core Data failed to save model: \(error.localizedDescription)")
+            do {
+                try viewContext.save()
+            } catch {
+                print("Core Data failed to save model: \(error.localizedDescription)")
+            }
         }
     }
 }

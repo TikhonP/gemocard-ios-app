@@ -19,6 +19,7 @@ final class GemocardKit: ObservableObject {
     /// Delay between requests in seconds
     private let delay = 0.1
     private let persistenceController = PersistenceController.shared
+    
     private var gemocardSDK: GemocardSDK!
     private var healthKitAvailible = false
     private var getDataController: GetDataController?
@@ -42,7 +43,9 @@ final class GemocardKit: ObservableObject {
     
     @Published var navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
     
-    @Published var debugMeasurementNumber = "0"
+    @Published var deviceOperatingMode = DeviceOperatingMode.unknown
+    @Published var deviceStatus = DeviceStatus.unknown
+    @Published var cuffPressure: UInt16 = 0
     
     // MARK: - private functions
     
@@ -134,7 +137,9 @@ final class GemocardKit: ObservableObject {
     
     private func onDiscoverCallback(peripheral: CBPeripheral, _: [String : Any], _ RSSI: NSNumber) {
         if (!devices.contains(peripheral)) {
-            devices.append(peripheral)
+            DispatchQueue.main.async {
+                self.devices.append(peripheral)
+            }
         }
         
         guard let savedGemocardUUID = UserDefaults.savedGemocardUUID else { return }
@@ -143,6 +148,12 @@ final class GemocardKit: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.connect(peripheral: peripheral)
             }
+        }
+    }
+    
+    private func updateSendingToMedsengerStatus(_ status: Int) {
+        DispatchQueue.main.async {
+            self.sendingToMedsengerStatus = status
         }
     }
     
@@ -178,22 +189,25 @@ final class GemocardKit: ObservableObject {
     }
     
     func getData() {
-        DispatchQueue.main.async { [self] in
-            navigationBarTitleStatus = LocalizedStringKey("Fetching data...").stringValue()
-            fetchingDataWithGemocard = true
-            
-            if getDataController == nil {
-                getDataController = GetDataController(gemocardSDK: gemocardSDK, healthKitAvailible: healthKitAvailible, throwAlert: throwAlert, progressUpdate: progressUpdate, delay: delay)
-            }
-            getDataController?.getData { status in
-                
+        DispatchQueue.main.async {
+            self.navigationBarTitleStatus = LocalizedStringKey("Fetching data...").stringValue()
+            self.fetchingDataWithGemocard = true
+        }
+        
+        if getDataController == nil {
+            getDataController = GetDataController(gemocardSDK: gemocardSDK, healthKitAvailible: healthKitAvailible, throwAlert: throwAlert, progressUpdate: progressUpdate, delay: delay)
+        }
+        getDataController?.getData { status in
+            DispatchQueue.main.async {
                 self.fetchingDataWithGemocard = false
                 self.navigationBarTitleStatus = LocalizedStringKey("Fetched data").stringValue()
                 
                 switch status {
                 case .timeout:
+                    print("Get data: timeout")
                     self.throwAlert(ErrorAlerts.failedToFetchDataError, .error)
                 case .invalidCrc:
+                    print("Get data: invalid CRC")
                     self.throwAlert(ErrorAlerts.failedToFetchDataError, .error)
                 case .done:
                     break
@@ -202,8 +216,16 @@ final class GemocardKit: ObservableObject {
         }
     }
     
-    func getDeviceStatusData() -> (deviceStatus: DeviceStatus?, deviceOperatingMode: DeviceOperatingMode?, cuffPressure: UInt16?) {
-        return (gemocardSDK.deviceStatus, gemocardSDK.deviceOperatingMode, gemocardSDK.cuffPressure)
+    func getDeviceStatusData() {
+        if !fetchingDataWithGemocard {
+            gemocardSDK.getDeviceStatus(completion: { deviceStatus, deviceOperatingMode, cuffPressure in
+                DispatchQueue.main.async {
+                    self.deviceStatus = deviceStatus
+                    self.deviceOperatingMode = deviceOperatingMode
+                    self.cuffPressure = cuffPressure
+                }
+            }, оnFailure: { _ in })
+        }
     }
     
     func eraseMemory() {
@@ -212,136 +234,132 @@ final class GemocardKit: ObservableObject {
             if !flag {
                 self.throwAlert(ErrorAlerts.failedToCompleteOperation, .error)
             }
-        } оnFailure: { failureCode in
-            self.throwAlert(ErrorAlerts.failedToCompleteOperation, .error)
-        }
+        } оnFailure: { _ in }
     }
     
     // MARK: - Public functions to use in views
     
     func sendDataToMedsenger() {
-        DispatchQueue.main.async {
-            self.sendingToMedsengerStatus = 1
-            
-            let objects: [Measurement]? = {
-                let context = self.persistenceController.container.viewContext
-                if let recentFetchDate = UserDefaults.lastMedsengerUploadedDate {
-                    let fetchRequest: NSFetchRequest<Measurement> = Measurement.fetchRequest()
-                    fetchRequest.predicate = NSPredicate(format: "%@ <= %K", recentFetchDate as NSDate, #keyPath(Measurement.date))
-                    
-                    do {
-                        return try context.fetch(fetchRequest)
-                    } catch {
-                        self.sendingToMedsengerStatus = 0
-                        print("Core Data failed to fetch: \(error.localizedDescription)")
-                        //                        SentrySDK.capture(error: error)
-                        return nil
-                    }
-                } else {
-                    let fetchRequest: NSFetchRequest<Measurement> = Measurement.fetchRequest()
-                    
-                    do {
-                        return try context.fetch(fetchRequest)
-                    } catch {
-                        self.sendingToMedsengerStatus = 0
-                        print("Core Data failed to fetch: \(error.localizedDescription)")
-                        //                        SentrySDK.capture(error: error)
-                        return nil
-                    }
+        updateSendingToMedsengerStatus(1)
+        
+        let objects: [Measurement]? = {
+            let context = persistenceController.container.viewContext
+            if let recentFetchDate = UserDefaults.lastMedsengerUploadedDate {
+                let fetchRequest: NSFetchRequest<Measurement> = Measurement.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "%@ <= %K", recentFetchDate as NSDate, #keyPath(Measurement.date))
+                
+                do {
+                    return try context.fetch(fetchRequest)
+                } catch {
+                    updateSendingToMedsengerStatus(0)
+                    print("Core Data failed to fetch: \(error.localizedDescription)")
+                    //                        SentrySDK.capture(error: error)
+                    return nil
                 }
-            }()
+            } else {
+                let fetchRequest: NSFetchRequest<Measurement> = Measurement.fetchRequest()
+                
+                do {
+                    return try context.fetch(fetchRequest)
+                } catch {
+                    updateSendingToMedsengerStatus(0)
+                    print("Core Data failed to fetch: \(error.localizedDescription)")
+                    //                        SentrySDK.capture(error: error)
+                    return nil
+                }
+            }
+        }()
+        
+        guard let records = objects else {
+            updateSendingToMedsengerStatus(0)
+            print("Failed to fetch data, objects are nil!")
+            return
+        }
+        
+        if records.isEmpty {
+            updateSendingToMedsengerStatus(0)
+            throwAlert(ErrorAlerts.emptyDataToUploadToMedsenger)
+            return
+        }
+        
+        guard let medsengerContractId = UserDefaults.medsengerContractId, let medsengerAgentToken = UserDefaults.medsengerAgentToken else {
+            updateSendingToMedsengerStatus(0)
+            throwAlert(ErrorAlerts.medsengerTokenIsEmptyOrInvalid)
+            return
+        }
+        
+        for record in records {
+            let data = [
+                "contract_id": medsengerContractId,
+                "agent_token": medsengerAgentToken,
+                "timestamp": record.date!.timeIntervalSince1970,
+                "measurement": [
+                    "heartRate": record.heartRate,
+                    "systolic_pressure": record.bloodPressureSystolic,
+                    "diastolic_pressure": record.bloodPressureDiastolic,
+                ]
+            ] as [String : Any]
             
-            guard let records = objects else {
-                self.sendingToMedsengerStatus = 0
-                print("Failed to fetch data, objects are nil!")
+            guard let jsonData = try? JSONSerialization.data(withJSONObject: data) else {
+                updateSendingToMedsengerStatus(0)
+                print("Failed to serialize data with JSON")
                 return
             }
             
-            if records.isEmpty {
-                self.sendingToMedsengerStatus = 0
-                self.throwAlert(ErrorAlerts.emptyDataToUploadToMedsenger)
+            guard let url = URL(string: "https://gemocard.medsenger.ru/api/receive") else {
+                updateSendingToMedsengerStatus(0)
+                print("Invalid medsenger url!")
                 return
             }
             
-            guard let medsengerContractId = UserDefaults.medsengerContractId, let medsengerAgentToken = UserDefaults.medsengerAgentToken else {
-                self.sendingToMedsengerStatus = 0
-                self.throwAlert(ErrorAlerts.medsengerTokenIsEmpty)
-                return
-            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = jsonData
             
-            for record in records {
-                let data = [
-                    "contract_id": medsengerContractId,
-                    "agent_token": medsengerAgentToken,
-                    "timestamp": record.date!.timeIntervalSince1970,
-                    "measurement": [
-                        "heartRate": record.heartRate,
-                        "systolic_pressure": record.bloodPressureSystolic,
-                        "diastolic_pressure": record.bloodPressureDiastolic,
-                    ]
-                ] as [String : Any]
-                
-                guard let jsonData = try? JSONSerialization.data(withJSONObject: data) else {
-                    self.sendingToMedsengerStatus = 0
-                    print("Failed to serialize data with JSON")
-                    return
-                }
-                
-                guard let url = URL(string: "https://gemocard.medsenger.ru/api/receive") else {
-                    self.sendingToMedsengerStatus = 0
-                    print("Invalid medsenger url!")
-                    return
-                }
-                
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.httpBody = jsonData
-                
-                URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
-                    DispatchQueue.main.async {
-                        guard error == nil else {
-                            self.sendingToMedsengerStatus = 0
-                            if (error as! URLError).code == URLError.notConnectedToInternet {
-                                self.throwAlert(ErrorAlerts.failedToConnectToNetwork)
-                            } else {
-                                print("Failed to make HTTP reuest to medsenger: \(error!.localizedDescription)")
-                                //                                SentrySDK.capture(error: error!)
-                                self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
-                            }
-                            self.sendingToMedsengerStatus = 0
-                            return
+            URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
+                DispatchQueue.main.async {
+                    guard error == nil else {
+                        self.updateSendingToMedsengerStatus(0)
+                        if (error as! URLError).code == URLError.notConnectedToInternet {
+                            self.throwAlert(ErrorAlerts.failedToConnectToNetwork)
+                        } else {
+                            print("Failed to make HTTP reuest to medsenger: \(error!.localizedDescription)")
+                            //                                SentrySDK.capture(error: error!)
+                            self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
                         }
-                        if let httpResponse = response as? HTTPURLResponse {
-                            if httpResponse.statusCode == 422 {
-                                guard let data = data else {
-                                    self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
-                                    self.sendingToMedsengerStatus = 0
-                                    print("Response data is empty")
-                                    return
-                                }
-                                let dataString = String(decoding: data, as: UTF8.self)
-                                if dataString.contains("Incorrect token") {
-                                    self.throwAlert(ErrorAlerts.medsengerTokenIsEmpty)
-                                } else {
-                                    self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
-                                    print("Error sending to medsenger: \(dataString)")
-                                }
-                                self.sendingToMedsengerStatus = 0
+                        self.updateSendingToMedsengerStatus(0)
+                        return
+                    }
+                    if let httpResponse = response as? HTTPURLResponse {
+                        if httpResponse.statusCode == 422 {
+                            guard let data = data else {
+                                self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
+                                self.updateSendingToMedsengerStatus(0)
+                                print("Response data is empty")
                                 return
                             }
-                        }
-                        if self.sendingToMedsengerStatus == records.count {
-                            UserDefaults.lastMedsengerUploadedDate = Date()
-                            self.throwAlert(ErrorAlerts.dataSuccessfullyUploadedToMedsenger)
-                            self.sendingToMedsengerStatus = 0
-                        } else {
-                            self.sendingToMedsengerStatus += 1
+                            let dataString = String(decoding: data, as: UTF8.self)
+                            if dataString.contains("Incorrect token") {
+                                self.throwAlert(ErrorAlerts.medsengerTokenIsEmptyOrInvalid)
+                            } else {
+                                self.throwAlert(ErrorAlerts.failedToUploadToMedsengerError, .error)
+                                print("Error sending to medsenger: \(dataString)")
+                            }
+                            self.updateSendingToMedsengerStatus(0)
+                            return
                         }
                     }
-                }).resume()
-            }
+                    if self.sendingToMedsengerStatus == records.count {
+                        UserDefaults.lastMedsengerUploadedDate = Date()
+                        self.throwAlert(ErrorAlerts.dataSuccessfullyUploadedToMedsenger)
+                        self.updateSendingToMedsengerStatus(0)
+                    } else {
+                        self.updateSendingToMedsengerStatus(self.sendingToMedsengerStatus + 1)
+                    }
+                }
+            }).resume()
         }
     }
     
@@ -354,11 +372,11 @@ final class GemocardKit: ObservableObject {
     }
     
     func updatePropertiesFromDeeplink(url: URL) {
-        DispatchQueue.main.async {
-            guard let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
-            guard let queryItems = urlComponents.queryItems else { return }
-            
-            for queryItem in queryItems {
+        guard let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        guard let queryItems = urlComponents.queryItems else { return }
+        
+        for queryItem in queryItems {
+            DispatchQueue.main.async {
                 switch queryItem.name {
                 case "contract_id":
                     guard let medsengerContractIdValue = queryItem.value else {

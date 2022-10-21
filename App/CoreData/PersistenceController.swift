@@ -89,7 +89,7 @@ class PersistenceController: ObservableObject {
             measurementModel.deviceOperatingMode = Int16(DeviceOperatingMode.arterialPressure.rawValue)
         }
         
-        print("Saving core data: \(measurementModel)\n measurement: \(String(describing: measurement)), measurementHeader: \(String(describing: measurementHeader)), ecgCount: \(String(describing: ecgData?.count))")
+//        print("Saving core data: \(measurementModel)\n measurement: \(String(describing: measurement)), measurementHeader: \(String(describing: measurementHeader)), ecgCount: \(String(describing: ecgData?.count))")
         save(context: context)
     }
 }

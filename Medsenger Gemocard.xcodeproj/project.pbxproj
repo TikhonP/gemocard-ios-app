@@ -145,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				43E0E66B28EDAF3B0010A363 /* GemocardKit.swift */,
+				4315477928FEE33A0048CDA7 /* GetDataController.swift */,
 				4325FE7428F848EE0038497E /* ECGfilters */,
 				43A1848728F5EDB400AAA915 /* Views */,
 				43A1846C28F45C9400AAA915 /* CoreData */,
@@ -154,7 +155,6 @@
 				434EE0AC28EC49B700591830 /* Assets.xcassets */,
 				434EE0AE28EC49B700591830 /* Preview Content */,
 				43A1847E28F5E8D200AAA915 /* Localizable.strings */,
-				4315477928FEE33A0048CDA7 /* GetDataController.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -481,7 +481,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;
@@ -522,7 +522,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Medsenger Gemocard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = CRF22TKXX5;
 				ENABLE_PREVIEWS = YES;

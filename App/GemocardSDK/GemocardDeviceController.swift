@@ -78,7 +78,7 @@ class GemocardDeviceController {
         if let timer = self.timer {
             timer.invalidate()
         }
-        self.timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { timer in
+        self.timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: false, block: { timer in
             if self.isProcessing {
                 self.status = .unknown
                 self.completionStorage.onFailure(.timeout)
